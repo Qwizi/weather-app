@@ -1,15 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, Noto_Sans } from "next/font/google";
 import "./globals.css";
+import { Plus, Bookmark, Cloud } from "lucide-react";
+import { ReduxProvider } from "../store/Provider";
+import { TemperatureToggleButton } from "./TemperatureToggleButton";
+import { DockPanel } from "./components/layout/DockPanel";
+import { Header } from "./components/layout/Header";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const notoSans = Noto_Sans({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -23,11 +32,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${spaceGrotesk.variable} ${notoSans.variable} antialiased font-display bg-background-dark text-white min-h-screen flex flex-col overflow-x-hidden  `}
       >
-        {children}
+        <ReduxProvider>
+          <div className="fixed inset-0 z-0  overflow-hidden">
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[120px]"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[#fa6238]/5 blur-[100px]"></div>
+            <div className="absolute inset-0 bg-grid-pattern opacity-30"></div>
+          </div>
+          <div className="relative z-10 flex flex-col h-full grow">
+            <Header />
+            <main className="flex-1 w-full  mx-auto px-6 md:px-12 lg:px-20 py-8 flex-col gap-10">
+              {children}
+            </main>
+            <DockPanel />
+          </div>
+        </ReduxProvider>
       </body>
     </html>
   );

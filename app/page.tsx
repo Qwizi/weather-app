@@ -1,65 +1,232 @@
-import Image from "next/image";
+'use client';
+import { BigCityCardSkeleton } from "./components/BitCityCard";
+import { LocateFixed, Search } from "lucide-react";
+import { CityCapsule } from "./components/CityCapsule";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { fetchWeather, fetchWeatherByCoords } from "@/utils/fetchWeather";
+import { useGeolocation } from "../hooks/useGeolocation";
+import { reverseGeocode } from "../utils/reverseGeocode";
+import WeatherHero from "./components/WeatherHero";
+
+interface WeatherData {
+  name: string;
+  country: string;
+  temp: number;
+  feels_like: number;
+  temp_min: number;
+  temp_max: number;
+  pressure: number;
+  humidity: number;
+  wind_speed: number;
+  wind_deg: number;
+  description: string;
+  icon: string;
+  visibility?: number;
+  clouds?: number;
+  sunrise?: number;
+  sunset?: number;
+  timezone?: number;
+  main?: string;
+  lat?: number;
+  lon?: number;
+  date?: string;
+
+}
+
 
 export default function Home() {
+
+  const { coords, error, loading, getLocation } = useGeolocation();
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [cityWeathers, setCityWeathers] = useState<WeatherData[]>([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!searchValue.trim()) return;
+    setSearchLoading(true);
+    setSearchError(null);
+    try {
+      const citySlug = encodeURIComponent(searchValue.trim().normalize("NFC"));
+      router.push(`/city/${citySlug}`);
+      setSearchValue("");
+      if (searchInputRef.current) searchInputRef.current.blur();
+    } catch (err: any) {
+      setSearchError("Nie znaleziono miasta lub błąd API");
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const handleGpsClick = async () => {
+    await getLocation();
+  };
+
+  useEffect(() => {
+    const fetchWeatherForCoords = async () => {
+      if (coords) {
+        try {
+          const geo = await reverseGeocode(coords.lat, coords.lon);
+          if (geo && geo[0]) {
+            const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
+            if (!apiKey) throw new Error('Brak klucza API');
+            const weatherData = await fetchWeatherByCoords(coords.lat, coords.lon, apiKey);
+            setWeather({
+              name: weatherData.name,
+              country: weatherData.sys.country,
+              temp: weatherData.main.temp,
+              feels_like: weatherData.main.feels_like,
+              temp_min: weatherData.main.temp_min,
+              temp_max: weatherData.main.temp_max,
+              pressure: weatherData.main.pressure,
+              humidity: weatherData.main.humidity,
+              wind_speed: weatherData.wind.speed,
+              wind_deg: weatherData.wind.deg,
+              description: weatherData.weather[0].description,
+              icon: weatherData.weather[0].icon,
+              visibility: weatherData.visibility,
+              clouds: weatherData.clouds.all,
+              sunrise: weatherData.sys.sunrise,
+              sunset: weatherData.sys.sunset,
+              timezone: weatherData.timezone,
+              main: weatherData.weather[0].main,
+              lat: weatherData.coord.lat,
+              lon: weatherData.coord.lon,
+            });
+          }
+        } catch (e) {
+          console.error("Błąd reverse geocoding/pogody:", e);
+        }
+      }
+    };
+    fetchWeatherForCoords();
+  }, [coords]);
+
+  // On mount, try to get location automatically and fetch 6 biggest Polish cities
+  useEffect(() => {
+    getLocation();
+
+    // 6 największych polskich miast
+    const polishCities = [
+      "Warszawa",
+      "Kraków",
+      "Łódź",
+      "Wrocław",
+      "Poznań",
+      "Gdańsk"
+    ];
+
+    const fetchCitiesWeather = async () => {
+      const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
+      if (!apiKey) return;
+      const results: WeatherData[] = [];
+      for (const city of polishCities) {
+        try {
+          const weatherData = await fetchWeather(city);
+          results.push({
+            name: weatherData.name,
+            country: weatherData.sys.country,
+            temp: weatherData.main.temp,
+            feels_like: weatherData.main.feels_like,
+            temp_min: weatherData.main.temp_min,
+            temp_max: weatherData.main.temp_max,
+            pressure: weatherData.main.pressure,
+            humidity: weatherData.main.humidity,
+            wind_speed: weatherData.wind.speed,
+            wind_deg: weatherData.wind.deg,
+            description: weatherData.weather[0].description,
+            icon: weatherData.weather[0].icon,
+          });
+        } catch (e) {
+          console.error(`Błąd pobierania pogody dla miasta ${city}:`, e);
+        }
+      }
+      setCityWeathers(results);
+    };
+    fetchCitiesWeather();
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="container mx-auto px-4">
+      <section className="flex flex-col items-center justify-center w-full  mx-auto gap-6 relative">
+        <form className="relative w-full group" onSubmit={handleSearch} autoComplete="off">
+          <div className="absolute -inset-1  rounded-full opacity-20 group-hover:opacity-40 blur transition duration-500"></div>
+          <div className="relative flex items-center w-full bg-[#1e2936]/90 backdrop-blur-xl rounded-full border border-glass-border h-16 shadow-2xl transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/50">
+            <div className="pl-4 pr-4 text-slate-400">
+              <Search />
+            </div>
+            <input
+              ref={searchInputRef}
+              className="w-full glass-panel border border-slate-400 text-white text-lg placeholder:text-slate-500 focus:ring-0 px-4 h-full font-medium font-body"
+              placeholder="Wyszukaj miasto..."
+              value={searchValue}
+              onChange={e => setSearchValue(e.target.value)}
+              disabled={searchLoading || loading}
+              autoComplete="off"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <div className="flex items-center gap-2 pr-2">
+              <button
+                type="submit"
+                className="flex items-center gap-2 bg-primary hover:bg-blue-600 text-white px-6 py-2.5 rounded-full transition duration-300 ease-in-out shadow-glow font-medium text-[20px] disabled:opacity-60"
+                disabled={searchLoading || loading}
+              >
+                {searchLoading ? (
+                  <span className="loader size-5" />
+                ) : (
+                  <Search />
+                )}
+                <span className="hidden md:inline">Szukaj</span>
+              </button>
+              <button
+                type="button"
+                className="flex items-center gap-2 bg-primary hover:bg-blue-600 text-white px-4 py-2.5 rounded-full transition duration-300 ease-in-out shadow-glow font-medium text-[20px] disabled:opacity-60"
+                onClick={handleGpsClick}
+                disabled={loading}
+              >
+                <LocateFixed />
+                <span className="hidden md:inline">GPS</span>
+              </button>
+            </div>
+          </div>
+          {searchError && <div className="text-red-500 mt-2 text-center">{searchError}</div>}
+        </form>
+      </section>
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mt-8">
+        <div className="col-span-1 lg:col-span-2">
+          {loading ? <BigCityCardSkeleton /> : <WeatherHero
+            city={weather?.name || "Nieznane"}
+            country={weather?.country || "??"}
+            date={weather ? new Date((Date.now() + (weather.timezone || 0) * 1000)).toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : "--"}
+            time={weather ? new Date((Date.now() + (weather.timezone || 0) * 1000)).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }) : "--:--"}
+            temperature={weather ? `${Math.round(weather.temp)}°C` : "--°C"}
+            weatherDesc={weather ? weather.description : "Brak danych"}
+            feelsLike={weather ? `${Math.round(weather.feels_like)}°C` : "--°C"}
+            high={weather ? `${Math.round(weather.temp_max)}°C` : "--°C"}
+            low={weather ? `${Math.round(weather.temp_min)}°C` : "--°C"}
+            icon={weather?.icon || ""}
+            redirect={true}
+          />}
         </div>
-      </main>
+        {cityWeathers.length === 0 && loading
+          ? [...Array(6)].map((_, i) => (
+              <div key={i} className="h-28 bg-glass-border/20 rounded-[3rem] animate-pulse" />
+            ))
+          : cityWeathers.map((cityWeather) => (
+              <CityCapsule key={cityWeather.name} weather={{
+                name: cityWeather.name,
+                country: cityWeather.country,
+                temp: cityWeather.temp,
+                description: cityWeather.description,
+                icon: cityWeather.icon,
+              }} />
+            ))}
+      </section>
     </div>
   );
 }
