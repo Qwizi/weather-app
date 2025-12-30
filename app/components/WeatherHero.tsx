@@ -21,7 +21,7 @@ interface WeatherHeroProps {
 export const WeatherHeroSkeleton = () => {
   return (
     <div className="col-span-1 lg:col-span-2 relative min-h-100">
-      <div className="absolute inset-0 bg-linear-to-r from-blue-900/20 to-slate-900/40 rounded-[2.5rem] blur-xl opacity-60" />
+      <div className="absolute inset-0 bg-white/10 rounded-[2.5rem] blur-xl opacity-60" />
 
       <div className="relative h-full glass-panel rounded-[2.5rem] p-8 md:p-12 overflow-hidden animate-pulse flex flex-col justify-between">
         <div className="absolute inset-0 opacity-10 bg-white/5 z-0 pointer-events-none" />

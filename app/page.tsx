@@ -1,7 +1,7 @@
 'use client';
 import { BigCityCardSkeleton } from "./components/BitCityCard";
 import { LocateFixed, Search } from "lucide-react";
-import { CityCapsule } from "./components/CityCapsule";
+import { CityCapsule, CityCapsuleSkeletons } from "./components/CityCapsule";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { fetchWeather, fetchWeatherByCoords } from "@/utils/fetchWeather";
@@ -40,6 +40,7 @@ export default function Home() {
   const { coords, error, loading, getLocation } = useGeolocation();
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [cityWeathers, setCityWeathers] = useState<WeatherData[]>([]);
+  const [cityWeathersLoading, setCityWeathersLoading] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -126,12 +127,16 @@ export default function Home() {
       "Łódź",
       "Wrocław",
       "Poznań",
-      "Gdańsk"
+      "Szczecin"
     ];
 
     const fetchCitiesWeather = async () => {
+      setCityWeathersLoading(true);
       const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-      if (!apiKey) return;
+      if (!apiKey) {
+        setCityWeathersLoading(false);
+        return;
+      }
       const results: WeatherData[] = [];
       for (const city of polishCities) {
         try {
@@ -155,6 +160,7 @@ export default function Home() {
         }
       }
       setCityWeathers(results);
+      setCityWeathersLoading(false);
     };
     fetchCitiesWeather();
   }, []);
@@ -224,19 +230,19 @@ export default function Home() {
             />
           ) : null}
         </div>
-        {cityWeathers.length === 0 && loading
-          ? [...Array(6)].map((_, i) => (
-              <div key={i} className="h-28 bg-glass-border/20 rounded-[3rem] animate-pulse" />
-            ))
-          : cityWeathers.map((cityWeather) => (
-              <CityCapsule key={cityWeather.name} weather={{
-                name: cityWeather.name,
-                country: cityWeather.country,
-                temp: cityWeather.temp,
-                description: cityWeather.description,
-                icon: cityWeather.icon,
-              }} />
-            ))}
+        {cityWeathersLoading ? (
+          <CityCapsuleSkeletons count={6} />
+        ) : (
+          cityWeathers.map((cityWeather) => (
+            <CityCapsule key={cityWeather.name} weather={{
+              name: cityWeather.name,
+              country: cityWeather.country,
+              temp: cityWeather.temp,
+              description: cityWeather.description,
+              icon: cityWeather.icon,
+            }} />
+          ))
+        )}
       </section>
     </div>
   );
