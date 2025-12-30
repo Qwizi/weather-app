@@ -5,7 +5,7 @@ interface WeatherIconProps {
     icon: string;
 }
 
-export const WeatherIcon = ({ icon }) => (
+export const WeatherIcon = ({ icon }: WeatherIconProps) => (
   <Image
     src={`https://openweathermap.org/img/wn/${icon}.png`}
     alt="Weather icon"

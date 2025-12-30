@@ -1,5 +1,4 @@
 'use client';
-import { BigCityCardSkeleton } from "../components/components/BitCityCard";
 import { LocateFixed, Search } from "lucide-react";
 import { CityCapsule, CityCapsuleSkeletons } from "../components/CityCapsule";
 import { useState, useEffect, useRef } from "react";
