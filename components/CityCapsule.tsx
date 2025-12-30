@@ -1,8 +1,8 @@
 import { Sun, Bookmark } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { addFavorite, removeFavorite, FavoriteCity } from "../../store/favoritesSlice";
+import { addFavorite, removeFavorite, FavoriteCity } from "../store/favoritesSlice";
 import { useRouter } from "next/navigation";
-import { RootState } from "../../store/store";
+import { RootState } from "../store/store";
 import BookmarkButton from "./BookmarkButton";
 import { WeatherIcon } from "./WeatherIcon";
 

@@ -5,10 +5,10 @@ import { RootState } from '../../store/store';
 import { setFavorites, removeFavorite, FavoriteCity } from '../../store/favoritesSlice';
 import { fetchWeather, fetchWeatherByCoords } from '../../utils/fetchWeather';
 import { Sun, CloudRain, CloudDrizzle, CloudLightning, Snowflake, CloudFog, Wind, CloudOff, Bookmark, Book, Save, Undo2 } from "lucide-react";
-import BookmarkButton from '../components/BookmarkButton';
-import { WeatherIcon } from '../components/WeatherIcon';
+import BookmarkButton from '../../components/BookmarkButton';
+import { WeatherIcon } from '../../components/WeatherIcon';
 import { useRouter } from 'next/navigation';
-import { CityCapsule, CityCapsuleSkeletons } from '../components/CityCapsule';
+import { CityCapsule, CityCapsuleSkeletons } from '../../components/CityCapsule';
 
 
 

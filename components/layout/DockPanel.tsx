@@ -1,7 +1,7 @@
 'use client';
 
 import { Bookmark, Home } from "lucide-react";
-import { TemperatureToggleButton } from "../../TemperatureToggleButton";
+import { TemperatureToggleButton } from "../../app/TemperatureToggleButton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";

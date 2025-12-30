@@ -1,13 +1,13 @@
 'use client';
-import { BigCityCardSkeleton } from "./components/BitCityCard";
+import { BigCityCardSkeleton } from "../components/components/BitCityCard";
 import { LocateFixed, Search } from "lucide-react";
-import { CityCapsule, CityCapsuleSkeletons } from "./components/CityCapsule";
+import { CityCapsule, CityCapsuleSkeletons } from "../components/CityCapsule";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { fetchWeather, fetchWeatherByCoords } from "@/utils/fetchWeather";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { reverseGeocode } from "../utils/reverseGeocode";
-import WeatherHero, { WeatherHeroSkeleton } from "./components/WeatherHero";
+import WeatherHero, { WeatherHeroSkeleton } from "../components/WeatherHero";
 
 interface WeatherData {
   name: string;

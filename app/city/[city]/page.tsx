@@ -9,14 +9,12 @@ import { RootState } from "../../../store/store";
 import { useRouter } from "next/navigation";
 import { fetchWeather } from "@/utils/fetchWeather";
 import { fetchForecastByCoords } from "@/utils/fetchForecast";
-import WeatherHero, { WeatherHeroSkeleton } from "../../components/WeatherHero";
-import PrecipitationRadar from "../../components/PrecipitationRadar";
-import HourlyForecast from "../../components/HourlyForecast";
-import StatCard from "../../components/StatCard";
-import SevenDayForecast from "../../components/SevenDayForecast";
-import SunTimes from "../../components/SunTimes";
-import BookmarkButton from "@/app/components/BookmarkButton";
-import { BigCityCardSkeleton } from "@/app/components/BitCityCard";
+import WeatherHero, { WeatherHeroSkeleton } from "../../../components/WeatherHero";
+import HourlyForecast from "../../../components/HourlyForecast";
+import StatCard from "../../../components/StatCard";
+import SevenDayForecast from "../../../components/SevenDayForecast";
+import SunTimes from "../../../components/SunTimes";
+import BookmarkButton from "@/components/BookmarkButton";
 
 
 
