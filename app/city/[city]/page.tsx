@@ -9,13 +9,14 @@ import { RootState } from "../../../store/store";
 import { useRouter } from "next/navigation";
 import { fetchWeather } from "@/utils/fetchWeather";
 import { fetchForecastByCoords } from "@/utils/fetchForecast";
-import WeatherHero from "../../components/WeatherHero";
+import WeatherHero, { WeatherHeroSkeleton } from "../../components/WeatherHero";
 import PrecipitationRadar from "../../components/PrecipitationRadar";
 import HourlyForecast from "../../components/HourlyForecast";
 import StatCard from "../../components/StatCard";
 import SevenDayForecast from "../../components/SevenDayForecast";
 import SunTimes from "../../components/SunTimes";
 import BookmarkButton from "@/app/components/BookmarkButton";
+import { BigCityCardSkeleton } from "@/app/components/BitCityCard";
 
 
 
@@ -154,7 +155,7 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
           </div>
         </div>
         {loading ? (
-          <div className="text-slate-400 mt-8">Ładowanie danych pogodowych...</div>
+          <WeatherHeroSkeleton />
         ) : error ? (
           <div className="text-red-500 mt-8">{error}</div>
         ) : weather && (

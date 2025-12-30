@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { fetchWeather, fetchWeatherByCoords } from "@/utils/fetchWeather";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { reverseGeocode } from "../utils/reverseGeocode";
-import WeatherHero from "./components/WeatherHero";
+import WeatherHero, { WeatherHeroSkeleton } from "./components/WeatherHero";
 
 interface WeatherData {
   name: string;
@@ -45,6 +45,8 @@ export default function Home() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const [isFetchingLocationWeather, setIsFetchingLocationWeather] = useState(false);
+  const [weatherLoading, setWeatherLoading] = useState(true);
 
 
   const handleSearch = async (e?: React.FormEvent) => {
@@ -71,6 +73,8 @@ export default function Home() {
   useEffect(() => {
     const fetchWeatherForCoords = async () => {
       if (coords) {
+        setIsFetchingLocationWeather(true);
+        setWeatherLoading(true);
         try {
           const geo = await reverseGeocode(coords.lat, coords.lon);
           if (geo && geo[0]) {
@@ -102,6 +106,9 @@ export default function Home() {
           }
         } catch (e) {
           console.error("Błąd reverse geocoding/pogody:", e);
+        } finally {
+          setWeatherLoading(false);
+          setIsFetchingLocationWeather(false);
         }
       }
     };
@@ -199,19 +206,23 @@ export default function Home() {
       </section>
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mt-8">
         <div className="col-span-1 lg:col-span-2">
-          {loading ? <BigCityCardSkeleton /> : <WeatherHero
-            city={weather?.name || "Nieznane"}
-            country={weather?.country || "??"}
-            date={weather ? new Date((Date.now() + (weather.timezone || 0) * 1000)).toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : "--"}
-            time={weather ? new Date((Date.now() + (weather.timezone || 0) * 1000)).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }) : "--:--"}
-            temperature={weather ? `${Math.round(weather.temp)}°C` : "--°C"}
-            weatherDesc={weather ? weather.description : "Brak danych"}
-            feelsLike={weather ? `${Math.round(weather.feels_like)}°C` : "--°C"}
-            high={weather ? `${Math.round(weather.temp_max)}°C` : "--°C"}
-            low={weather ? `${Math.round(weather.temp_min)}°C` : "--°C"}
-            icon={weather?.icon || ""}
-            redirect={true}
-          />}
+          {weatherLoading || isFetchingLocationWeather ? (
+            <WeatherHeroSkeleton />
+          ) : weather ? (
+            <WeatherHero
+              city={weather.name}
+              country={weather.country}
+              date={new Date((Date.now() + (weather.timezone || 0) * 1000)).toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              time={new Date((Date.now() + (weather.timezone || 0) * 1000)).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
+              temperature={`${Math.round(weather.temp)}°C`}
+              weatherDesc={weather.description}
+              feelsLike={`${Math.round(weather.feels_like)}°C`}
+              high={`${Math.round(weather.temp_max)}°C`}
+              low={`${Math.round(weather.temp_min)}°C`}
+              icon={weather.icon}
+              redirect={true}
+            />
+          ) : null}
         </div>
         {cityWeathers.length === 0 && loading
           ? [...Array(6)].map((_, i) => (

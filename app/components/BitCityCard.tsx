@@ -102,27 +102,49 @@ export function BigCityCard({ weather }: BigCityCardProps) {
 
 export function BigCityCardSkeleton() {
   return (
-    <div className="col-span-1 lg:col-span-2 relative group animate-pulse">
-      <div className="absolute inset-0 bg-linear-to-r from-blue-900/400 to-slate-900/40 rounded-[3rem] blur-xl opacity-50" />
-      <div className="relative glass-panel rounded-[3rem] p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
-        <div className="absolute inset-0 opacity-10 mix-blend-overlay z-0 map-bg-image" />
-        <div className="relative z-10 flex flex-col gap-2 text-center md:text-left w-1/2">
-          <div className="h-6 w-32 bg-glass-border/30 rounded-full mb-4" />
-          <div className="h-12 w-48 bg-glass-border/20 rounded-full mb-2" />
-          <div className="h-6 w-24 bg-glass-border/20 rounded-full mb-6" />
-          <div className="flex gap-6 mt-6 justify-center md:justify-start">
-            <div className="h-8 w-16 bg-glass-border/20 rounded-full" />
-            <div className="h-8 w-16 bg-glass-border/20 rounded-full" />
-            <div className="h-8 w-16 bg-glass-border/20 rounded-full" />
+    <div className="col-span-1 lg:col-span-2 relative group min-h-[504px] animate-pulse w-full">
+      {/* glow */}
+      <div className="absolute inset-0 bg-linear-to-r from-blue-900/20 to-slate-900/40 rounded-[2.5rem] blur-xl opacity-60" />
+
+      <div className="relative h-full glass-panel rounded-[2.5rem] p-8 md:p-12 overflow-hidden flex flex-col justify-between">
+        {/* background overlay */}
+        <div className="absolute inset-0 opacity-10 mix-blend-overlay z-0 pointer-events-none bg-slate-500" />
+
+        {/* header */}
+        <div className="relative z-10 flex justify-between items-start">
+          <div>
+            {/* city */}
+            <div className="h-16 md:h-24 w-64 bg-slate-400 rounded-xl mb-3" />
+
+            {/* country + icon */}
+            <div className="flex items-center gap-3">
+              <div className="h-6 w-6 bg-slate-400 rounded-full" />
+              <div className="h-6 w-32 bg-slate-400 rounded-lg" />
+            </div>
+          </div>
+
+          {/* date + time */}
+          <div className="text-right hidden md:flex flex-col gap-3">
+            <div className="h-5 w-32 bg-slate-400 rounded-lg" />
+            <div className="h-4 w-24 bg-slate-400 rounded-lg" />
           </div>
         </div>
-        <div className="relative z-10 flex flex-col items-center w-1/2">
-          <div className="flex items-center justify-center">
-            <div className="size-48 bg-glass-border/20 rounded-full" />
-          </div>
-          <div className="text-center -mt-4">
-            <div className="h-16 w-32 bg-glass-border/20 rounded-full mx-auto mb-2" />
-            <div className="h-6 w-24 bg-glass-border/20 rounded-full mx-auto" />
+
+        {/* bottom */}
+        <div className="relative z-10 flex flex-col justify-between mt-8 md:mt-0 gap-6">
+          {/* weather description */}
+          <div className="h-8 w-56 bg-slate-400 rounded-lg" />
+
+          <div className="flex justify-between items-center gap-6">
+            {/* temperature */}
+            <div className="h-[120px] md:h-[140px] w-48 bg-slate-400 rounded-2xl" />
+
+            {/* stats */}
+            <div className="flex gap-3 pb-4">
+              <div className="h-20 w-24 bg-slate-400 rounded-xl" />
+              <div className="h-20 w-24 bg-slate-400 rounded-xl" />
+              <div className="h-20 w-24 bg-slate-400 rounded-xl" />
+            </div>
           </div>
         </div>
       </div>

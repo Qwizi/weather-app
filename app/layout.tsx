@@ -47,7 +47,7 @@ export default function RootLayout({
           </div>
           <div className="relative z-10 flex flex-col h-full grow">
             <Header />
-            <main className="flex-1 w-full  mx-auto px-6 md:px-12 lg:px-20 py-8 flex-col gap-10">
+            <main className="flex-1 w-full mx-auto px-6 md:px-12 lg:px-20 py-8 flex-col gap-10">
               {children}
             </main>
             <DockPanel />

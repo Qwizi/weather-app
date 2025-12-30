@@ -36,9 +36,6 @@ body {
 }
 
 @layer utilities {
-  .header {
-    @apply flex items-center justify-between px-6 py-6 md:px-12 lg:px-24  mx-auto w-full;
-  }
   .dock-panel {
     @apply fixed bottom-8 left-1/2 -translate-x-1/2 z-50;
 

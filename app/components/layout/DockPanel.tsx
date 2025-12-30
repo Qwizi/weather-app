@@ -5,11 +5,23 @@ import { TemperatureToggleButton } from "../../TemperatureToggleButton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 export const DockPanel = () => {
     const [linkToRedirect, setLinkToRedirect] = useState("/saved");
     const pathname = usePathname();
-    const icon = pathname === "/saved" ? <Home className="dock-icon"/> : <Bookmark className="dock-icon"/>;
+    const favorites = useSelector((state: RootState) => state.favorites.cities);
+    const favoritesCount = favorites.length;
+
+    const icon = pathname === "/saved" ? <Home className="dock-icon" /> : <>
+        <div className="relative">
+            <Bookmark className="dock-icon" />
+            <div className="absolute -top-1 -right-1 size-4 bg-amber-500 border-2 border-background-dark rounded-full">
+                <span className="text-xs text-white font-bold flex items-center justify-center h-full w-full">{favoritesCount}</span>
+            </div>
+        </div>
+    </>;
 
     useEffect(() => {
         setLinkToRedirect(pathname === "/saved" ? "/" : "/saved");
@@ -20,7 +32,7 @@ export const DockPanel = () => {
             <div className="dock-panel-content bg-[#192633]">
                 <Link href={linkToRedirect} className="dock-button" title="Ulubione miasta">
                     {icon}
-                </Link> 
+                </Link>
                 <div className="vertical-divider"></div>
                 <TemperatureToggleButton />
             </div>

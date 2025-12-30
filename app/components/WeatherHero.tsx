@@ -17,6 +17,46 @@ interface WeatherHeroProps {
   redirect?: boolean
 }
 
+
+export const WeatherHeroSkeleton = () => {
+  return (
+    <div className="col-span-1 lg:col-span-2 relative min-h-100">
+      <div className="absolute inset-0 bg-linear-to-r from-blue-900/20 to-slate-900/40 rounded-[2.5rem] blur-xl opacity-60" />
+
+      <div className="relative h-full glass-panel rounded-[2.5rem] p-8 md:p-12 overflow-hidden animate-pulse flex flex-col justify-between">
+        <div className="absolute inset-0 opacity-10 bg-white/5 z-0 pointer-events-none" />
+        <div className="relative z-10 flex justify-between items-start">
+          <div className="space-y-4">
+            <div className="h-16 md:h-20 w-72 bg-white/10 rounded-xl" />
+            <div className="h-6 w-40 bg-white/10 rounded-lg" />
+          </div>
+
+          <div className="hidden md:flex flex-col items-end space-y-3">
+            <div className="h-5 w-32 bg-white/10 rounded-lg" />
+            <div className="h-4 w-24 bg-white/10 rounded-lg" />
+          </div>
+        </div>
+
+        <div className="relative z-10 flex flex-col justify-between mt-8 md:mt-0 space-y-6">
+          <div className="h-8 w-56 bg-white/10 rounded-lg" />
+
+          <div className="flex justify-between items-center gap-4">
+            <div className="h-[120px] md:h-[140px] w-60 bg-white/10 rounded-2xl" />
+            <div className="flex gap-2 pb-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-24 w-20 bg-white/10 rounded-2xl"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function WeatherHero({
   ...props
 }: WeatherHeroProps) {
