@@ -15,9 +15,9 @@ export function TemperatureToggleButton() {
     >
       <span className={unit === "C" ? "text-white font-bold" : "text-slate-500"}>°C</span>
       <span className="text-slate-500">/</span>
-      <span className={unit === "F" ? "text-white font-bold text-sm" : "text-slate-500 text-sm"}>°F</span>
+      <span className={unit === "F" ? "text-white font-bold" : "text-slate-500"}>°F</span>
       <span className="text-slate-500">/</span>
-      <span className={unit === "K" ? "text-white font-bold text-sm" : "text-slate-500 text-sm"}>K</span>
+      <span className={unit === "K" ? "text-white font-bold" : "text-slate-500"}>K</span>
     </button>
   );
 }

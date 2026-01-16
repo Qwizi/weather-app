@@ -1,23 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
-
-export type TemperatureUnit = 'C' | 'F' | 'K';
+import { isTemperatureUnit, type TemperatureUnit } from '../lib/utils';
+import { getLocalStorageItem, setLocalStorageItem } from '../lib/storage';
 
 interface TemperatureState {
   unit: TemperatureUnit;
 }
 
-function loadTemperatureUnit(): TemperatureUnit {
-  if (typeof window !== 'undefined') {
-    try {
-      const data = localStorage.getItem('temperatureUnit');
-      if (data === 'C' || data === 'F' || data === 'K') return data;
-    } catch {}
-  }
-  return 'C';
-}
-
 const initialState: TemperatureState = {
-  unit: loadTemperatureUnit(),
+  unit: 'C',
 };
 
 const temperatureSlice = createSlice({
@@ -33,16 +23,12 @@ const temperatureSlice = createSlice({
       } else {
         state.unit = 'C';
       }
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('temperatureUnit', state.unit);
-      }
+      setLocalStorageItem('temperatureUnit', state.unit);
     },
     setUnit: (state, action) => {
-      if (["C", "F", "K"].includes(action.payload)) {
+      if (isTemperatureUnit(action.payload)) {
         state.unit = action.payload;
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('temperatureUnit', state.unit);
-        }
+        setLocalStorageItem('temperatureUnit', state.unit);
       }
     },
   },

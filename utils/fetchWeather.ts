@@ -1,4 +1,5 @@
 
+import { OpenWeatherForecastResponse, OpenWeatherResponse } from "../lib/types";
 import type { FavoriteCity } from "../store/favoritesSlice";
 
 export interface GeoResult {
@@ -26,16 +27,17 @@ export async function fetchGeo(city: string, apiKey: string, limit = 1): Promise
 }
 
 
-export async function fetchWeatherByCoords(lat: number, lon: number, apiKey: string) {
+export async function fetchWeatherByCoords(lat: number, lon: number, apiKey: string): Promise<OpenWeatherResponse> {
     ;
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=pl`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Błąd pobierania pogody');
-    return await res.json();
+    const data = await res.json();
+    return data as OpenWeatherResponse;
 }
 
 
-export async function fetchWeather(city: string) {
+export async function fetchWeather(city: string): Promise<OpenWeatherResponse> {
     const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
     if (!apiKey) throw new Error('Brak klucza API');
     const geo = await fetchGeo(city, apiKey);
@@ -60,13 +62,13 @@ export async function reverseGeocode(lat: number, lon: number): Promise<ReverseG
 }
 
 
-export async function fetchForecastByCoords(lat: number, lon: number, apiKey: string) {
+export async function fetchForecastByCoords(lat: number, lon: number, apiKey: string): Promise<OpenWeatherForecastResponse> {
     const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=pl`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Błąd pobierania prognozy');
-    return await res.json();
+    return await res.json() as OpenWeatherForecastResponse;
 }
 
-export async function fetchForecastForCity(city: FavoriteCity, apiKey: string) {
+export async function fetchForecastForCity(city: FavoriteCity, apiKey: string): Promise<OpenWeatherForecastResponse> {
     return fetchForecastByCoords(city.lat, city.lon, apiKey);
 }

@@ -4,27 +4,25 @@ import { Provider, useDispatch } from "react-redux";
 import { store } from "./store";
 import { setUnit } from "./temperatureSlice";
 import { setFavorites } from "./favoritesSlice";
+import { getJSON, getLocalStorageItem } from "../lib/storage";
+import { isTemperatureUnit } from "../lib/utils";
 
 function HydrateStore() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    try {
-      const unit = localStorage.getItem("temperatureUnit");
-      if (unit === "C" || unit === "F" || unit === "K") {
+    const raw = getLocalStorageItem("temperatureUnit");
+    if (raw) {
+      const unit = raw.replace(/"/g, '').trim();
+      if (isTemperatureUnit(unit)) {
         dispatch(setUnit(unit));
       }
-    } catch {}
+    }
 
-    try {
-      const fav = localStorage.getItem("favorites");
-      if (fav) {
-        const parsed = JSON.parse(fav);
-        if (Array.isArray(parsed)) {
-          dispatch(setFavorites(parsed));
-        }
-      }
-    } catch {}
+    const fav = getJSON<unknown>("favorites");
+    if (Array.isArray(fav)) {
+      dispatch(setFavorites(fav));
+    }
   }, [dispatch]);
 
   return null;

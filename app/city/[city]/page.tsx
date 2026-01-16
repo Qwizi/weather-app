@@ -1,61 +1,27 @@
 "use client";
 import React from "react";
-import { convertTemperature } from "../../../lib/utils";
-import { Sun, Cloudy, CloudRain, CloudDrizzle, CloudLightning, Snowflake, CloudFog, Wind, CloudOff, Undo2, Bookmark } from "lucide-react";
+import { formatTemperature, formatLocalTime, convertTemperature } from "@/lib/utils";
+import { Undo2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {  FavoriteCity } from "../../../store/favoritesSlice";
-import { RootState } from "../../../store/store";
+import { FavoriteCity } from "@/store/favoritesSlice";
+import { RootState } from "@/store/store";
 import { useRouter } from "next/navigation";
 import { fetchWeather, fetchForecastByCoords } from "@/utils/fetchWeather";
-import WeatherHero, { WeatherHeroSkeleton } from "../../../components/WeatherHero";
-import HourlyForecast from "../../../components/HourlyForecast";
-import StatCard from "../../../components/StatCard";
-import SevenDayForecast from "../../../components/SevenDayForecast";
-import SunTimes from "../../../components/SunTimes";
+import WeatherHero, { WeatherHeroSkeleton } from "@/components/WeatherHero";
+import HourlyForecast from "@/components/HourlyForecast";
+import StatCard from "@/components/StatCard";
+import SevenDayForecast from "@/components/SevenDayForecast";
+import SunTimes from "@/components/SunTimes";
 import BookmarkButton from "@/components/BookmarkButton";
+import { WeatherDetails, OpenWeatherForecastResponse } from "@/lib/types";
 
-
-
-
-
-interface WeatherData {
-  name: string;
-  country: string;
-  temp: number;
-  feels_like: number;
-  temp_min: number;
-  temp_max: number;
-  pressure: number;
-  humidity: number;
-  wind_speed: number;
-  wind_deg: number;
-  description: string;
-  icon: string;
-  visibility: number;
-  clouds: number;
-  sunrise: number;
-  sunset: number;
-  timezone: number;
-  main: string;
-  lat: number;
-  lon: number;
-}
-
-
-
-
-// Helper: Format time from unix and timezone offset
-function formatTime(unix: number, timezone: number) {
-  const date = new Date((unix + timezone) * 1000);
-  return date.toUTCString().slice(17, 22);
-}
 
 export default function CityPage({ params }: { params: Promise<{ city: string }> }) {
 
   const router = useRouter();
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [forecast, setForecast] = useState<any | null>(null);
+  const [weather, setWeather] = useState<WeatherDetails | null>(null);
+  const [forecast, setForecast] = useState<OpenWeatherForecastResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { city } = React.use(params);
@@ -138,12 +104,12 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
                 city={weather.name}
                 country={weather.country}
                 date={"Dziś"}
-                time={formatTime(Date.now() / 1000, +1)}
-                temperature={`${Math.round(convertTemperature(weather.temp, unit))}°${unit}`}
+                time={formatLocalTime(Date.now() / 1000, weather.timezone)}
+                temperature={formatTemperature(weather.temp, unit)}
                 weatherDesc={weather.description}
-                feelsLike={`${Math.round(convertTemperature(weather.feels_like, unit))}°${unit}`}
-                high={`${Math.round(convertTemperature(weather.temp_max, unit))}°${unit}`}
-                low={`${Math.round(convertTemperature(weather.temp_min, unit))}°${unit}`}
+                feelsLike={formatTemperature(weather.feels_like, unit)}
+                high={formatTemperature(weather.temp_max, unit)}
+                low={formatTemperature(weather.temp_min, unit)}
               />
             </section>
             <section className="flex flex-col gap-6 mt-6">
@@ -152,11 +118,10 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
                   <div className="flex-1 ">
                     <HourlyForecast
                       hours={forecast.list.slice(0, 8).map((item: any, idx: number) => {
-                        const tempVal = convertTemperature(item.main.temp, unit);
                         return {
                           time: item.dt_txt.split(' ')[1].slice(0, 5),
                           icon: item.weather[0].icon,
-                          temp: `${Math.round(tempVal)}°${unit}`,
+                          temp: formatTemperature(item.main.temp, unit),
                           desc: item.weather[0].description,
                           pop: item.pop ? `${Math.round(item.pop * 100)}%` : '',
                           accent: idx === 0,
@@ -166,23 +131,34 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
                   </div>
                   <div className=" p-4 flex-1 min-w-0">
                     <SevenDayForecast
-                      days={Array.from({ length: 7 }).map((_, i) => {
-                        const dayItems = forecast.list.filter((item: any) => {
-                          const date = new Date(item.dt_txt);
-                          return date.getDate() === (new Date().getDate() + i) && item.dt_txt.includes('12:00:00');
-                        });
-                        const item = dayItems[0] || forecast.list[i * 8] || forecast.list[0];
-                        const low = convertTemperature(item.main.temp_min, unit);
-                        const high = convertTemperature(item.main.temp_max, unit);
-                        return {
-                          day: i === 0 ? 'Dziś' :
-                            new Date(Date.now() + i * 24 * 60 * 60 * 1000).toLocaleDateString('pl-PL', { weekday: 'short' }),
-                          icon: item.weather[0].main === 'Rain' ? 'rainy' : item.weather[0].main === 'Clouds' ? 'cloud' : item.weather[0].main === 'Snow' ? 'snow' : item.weather[0].main === 'Clear' ? 'sunny' : 'cloud',
-                          pop: item.pop ? `${Math.round(item.pop * 100)}%` : '',
-                          low: `${Math.round(low)}°${unit}`,
-                          high: `${Math.round(high)}°${unit}`,
-                        };
-                      })}
+                      days={
+                        // Group forecast items by day
+                        Object.values(forecast.list.reduce((acc: any, item: any) => {
+                          const date = new Date(item.dt * 1000).toDateString();
+                          if (!acc[date]) {
+                            acc[date] = [];
+                          }
+                          acc[date].push(item);
+                          return acc;
+                        }, {})).slice(0, 7).map((dayItems: any, i) => {
+                          // Find min/max for the whole day
+                          const minTemp = Math.min(...dayItems.map((d: any) => d.main.temp_min));
+                          const maxTemp = Math.max(...dayItems.map((d: any) => d.main.temp_max));
+                          
+                          // Find item closest to noon for icon/desc
+                          const midDayItem = dayItems.find((d: any) => d.dt_txt.includes("12:00:00")) || dayItems[0];
+                          
+                          return {
+                            day: i === 0 ? 'Dziś' : new Date(dayItems[0].dt * 1000).toLocaleDateString('pl-PL', { weekday: 'short' }),
+                            icon: midDayItem.weather[0].icon,
+                            pop: midDayItem.pop ? `${Math.round(midDayItem.pop * 100)}%` : '',
+                            low: formatTemperature(minTemp, unit),
+                            high: formatTemperature(maxTemp, unit),
+                            minTemp: convertTemperature(minTemp, unit),
+                            maxTemp: convertTemperature(maxTemp, unit)
+                          };
+                        })
+                      }
                     />
 
                   </div>
@@ -203,7 +179,7 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
 
               </div>
               <div className="mt-4">
-                <SunTimes sunrise={formatTime(weather.sunrise, weather.timezone)} sunset={formatTime(weather.sunset, weather.timezone)} />
+                <SunTimes sunrise={formatLocalTime(weather.sunrise, weather.timezone)} sunset={formatLocalTime(weather.sunset, weather.timezone)} />
               </div>
             </section>
           </>
