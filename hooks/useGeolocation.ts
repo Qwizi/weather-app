@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 export function useGeolocation() {
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const getLocation = async (): Promise<{ lat: number; lon: number } | null> => {
+  const getLocation = useCallback(async (): Promise<{ lat: number; lon: number } | null> => {
     setLoading(true);
     setError(null);
     if (!navigator.geolocation) {
@@ -29,7 +29,7 @@ export function useGeolocation() {
         }
       );
     });
-  };
+  }, []);
 
   return { coords, error, loading, getLocation };
 }

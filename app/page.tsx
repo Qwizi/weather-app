@@ -2,44 +2,77 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { formatTemperature, formatLocalTime, formatLocalDate } from "@/lib/utils";
-import { LocateFixed, Search } from "lucide-react";
 import { CityCapsule, CityCapsuleSkeletons } from "../components/CityCapsule";
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import {  useEffect,  useReducer, useCallback, useMemo } from "react";
 import { fetchWeather, fetchWeatherByCoords,reverseGeocode } from "@/utils/fetchWeather";
 import { useGeolocation,  } from "../hooks/useGeolocation";
 import WeatherHero, { WeatherHeroSkeleton } from "../components/WeatherHero";
 import { WeatherSummary } from "@/lib/types";
 import SearchBox from "@/components/SearchBox";
 
+type HomeState = {
+  weather: WeatherSummary | null;
+  cityWeathers: WeatherSummary[];
+  cityWeathersLoading: boolean;
+  isFetchingLocationWeather: boolean;
+  weatherLoading: boolean;
+};
+
+type HomeAction =
+  | { type: 'SET_LOCATION_WEATHER_LOADING'; payload: boolean }
+  | { type: 'SET_LOCATION_WEATHER'; payload: WeatherSummary | null }
+  | { type: 'SET_CITY_WEATHERS_LOADING'; payload: boolean }
+  | { type: 'SET_CITY_WEATHERS'; payload: WeatherSummary[] }
+  | { type: 'FETCH_ERROR'; payload: Error };
+
+const initialState: HomeState = {
+  weather: null,
+  cityWeathers: [],
+  cityWeathersLoading: true,
+  isFetchingLocationWeather: false,
+  weatherLoading: true,
+};
+
+function homeReducer(state: HomeState, action: HomeAction): HomeState {
+  switch (action.type) {
+    case 'SET_LOCATION_WEATHER_LOADING':
+      return { ...state, weatherLoading: action.payload, isFetchingLocationWeather: action.payload };
+    case 'SET_LOCATION_WEATHER':
+      return { ...state, weather: action.payload, weatherLoading: false, isFetchingLocationWeather: false };
+    case 'SET_CITY_WEATHERS_LOADING':
+      return { ...state, cityWeathersLoading: action.payload };
+    case 'SET_CITY_WEATHERS':
+      return { ...state, cityWeathers: action.payload, cityWeathersLoading: false };
+    case 'FETCH_ERROR':
+      // Simplified error handling for demo purposes; in real app, might want specific error fields
+      return { ...state, weatherLoading: false, cityWeathersLoading: false, isFetchingLocationWeather: false };
+    default:
+      return state;
+  }
+}
 
 export default function Home() {
 
   const { coords, error, loading, getLocation } = useGeolocation();
-  const [weather, setWeather] = useState<WeatherSummary | null>(null);
-  const [cityWeathers, setCityWeathers] = useState<WeatherSummary[]>([]);
-  const [cityWeathersLoading, setCityWeathersLoading] = useState(true);
-  
-  const [isFetchingLocationWeather, setIsFetchingLocationWeather] = useState(false);
-  const [weatherLoading, setWeatherLoading] = useState(true);
+  const [state, dispatch] = useReducer(homeReducer, initialState);
+  const { weather, cityWeathers, cityWeathersLoading, isFetchingLocationWeather, weatherLoading } = state;
   const unit = useSelector((state: RootState) => state.temperature.unit);
 
-  const handleGpsClick = async () => {
+  const handleGpsClick = useCallback(async () => {
     await getLocation();
-  };
+  }, [getLocation]);
 
   useEffect(() => {
     const fetchWeatherForCoords = async () => {
       if (coords) {
-        setIsFetchingLocationWeather(true);
-        setWeatherLoading(true);
+        dispatch({ type: 'SET_LOCATION_WEATHER_LOADING', payload: true });
         try {
           const geo = await reverseGeocode(coords.lat, coords.lon);
           if (geo && geo[0]) {
             const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
             if (!apiKey) throw new Error('Brak klucza API');
             const weatherData = await fetchWeatherByCoords(coords.lat, coords.lon, apiKey);
-            setWeather({
+            dispatch({ type: 'SET_LOCATION_WEATHER', payload: {
               name: weatherData.name,
               country: weatherData.sys.country,
               temp: weatherData.main.temp,
@@ -60,38 +93,34 @@ export default function Home() {
               main: weatherData.weather[0].main,
               lat: weatherData.coord.lat,
               lon: weatherData.coord.lon,
-            });
+            }});
           }
         } catch (e) {
           console.error("Błąd reverse geocoding/pogody:", e);
-        } finally {
-          setWeatherLoading(false);
-          setIsFetchingLocationWeather(false);
+          dispatch({ type: 'FETCH_ERROR', payload: e as Error });
         }
       }
     };
     fetchWeatherForCoords();
   }, [coords]);
 
-  // On mount, try to get location automatically and fetch 6 biggest Polish cities
+  const polishCities = useMemo(() => [
+    "Warszawa",
+    "Kraków",
+    "Łódź",
+    "Wrocław",
+    "Poznań",
+    "Szczecin"
+  ], []);
+
   useEffect(() => {
     getLocation();
 
-    // 6 największych polskich miast
-    const polishCities = [
-      "Warszawa",
-      "Kraków",
-      "Łódź",
-      "Wrocław",
-      "Poznań",
-      "Szczecin"
-    ];
-
     const fetchCitiesWeather = async () => {
-      setCityWeathersLoading(true);
+      dispatch({ type: 'SET_CITY_WEATHERS_LOADING', payload: true });
       const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
       if (!apiKey) {
-        setCityWeathersLoading(false);
+        dispatch({ type: 'SET_CITY_WEATHERS_LOADING', payload: false });
         return;
       }
       const results: WeatherSummary[] = [];
@@ -116,11 +145,10 @@ export default function Home() {
           console.error(`Błąd pobierania pogody dla miasta ${city}:`, e);
         }
       }
-      setCityWeathers(results);
-      setCityWeathersLoading(false);
+      dispatch({ type: 'SET_CITY_WEATHERS', payload: results });
     };
     fetchCitiesWeather();
-  }, []);
+  }, [polishCities, getLocation]);
 
   return (
     <div className="container mx-auto px-4">

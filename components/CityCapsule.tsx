@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { RootState } from "../store/store";
 import BookmarkButton from "./BookmarkButton";
 import { WeatherIcon } from "./WeatherIcon";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import gsap from "gsap";
 
 interface CityCapsuleWeather {
@@ -57,9 +57,6 @@ export const CityCapsuleSkeletons = ({ count = 6 }: CityCapsuleSkeletonProps) =>
   );
 }
 
-
-
-
 export function CityCapsule({ weather }: CityCapsuleProps) {
   const unit = useSelector((state: RootState) => state.temperature.unit);
   const favorites = useSelector((state: RootState) => state.favorites.cities);
@@ -72,6 +69,7 @@ export function CityCapsule({ weather }: CityCapsuleProps) {
   const cityObj: FavoriteCity = { name: weather.name, country: weather.country, lat: (weather as any).lat ?? (weather as any).coord?.lat ?? 0, lon: (weather as any).lon ?? (weather as any).coord?.lon ?? 0 };
   const capsuleRef = useRef<HTMLDivElement>(null);
 
+  // Entrance animation - run once
   useEffect(() => {
     if (capsuleRef.current) {
       gsap.fromTo(
@@ -85,7 +83,10 @@ export function CityCapsule({ weather }: CityCapsuleProps) {
         }
       );
     }
-    // Animate temperature count up
+  }, []);
+
+  // Temperature animation
+  useEffect(() => {
     if (tempRef.current) {
       const end = Math.round(temp);
       const obj = { val: end - 10 };
@@ -98,15 +99,25 @@ export function CityCapsule({ weather }: CityCapsuleProps) {
     }
   }, [temp]);
 
+  const handleCapsuleClick = useCallback(() => {
+    router.push(`/city/${encodeURIComponent(weather.name)}`);
+  }, [router, weather.name]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      handleCapsuleClick();
+    }
+  }, [handleCapsuleClick]);
+
   return (
     <div
       ref={capsuleRef}
       className="glass-panel glass-panel-hover rounded-[3rem] p-6 flex items-center justify-between gap-4 cursor-pointer transition-all duration-300 group hover:scale-[1.03]"
-      onClick={() => router.push(`/city/${encodeURIComponent(weather.name)}`)}
+      onClick={handleCapsuleClick}
       tabIndex={0}
       role="button"
       aria-label={`Zobacz pogodę dla ${weather.name}`}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') router.push(`/city/${encodeURIComponent(weather.name)}`); }}
+      onKeyDown={handleKeyDown}
     >
       <div className="absolute -top-4 right-4">
         <BookmarkButton
