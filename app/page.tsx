@@ -44,7 +44,7 @@ function homeReducer(state: HomeState, action: HomeAction): HomeState {
     case 'SET_CITY_WEATHERS':
       return { ...state, cityWeathers: action.payload, cityWeathersLoading: false };
     case 'FETCH_ERROR':
-      // Simplified error handling for demo purposes; in real app, might want specific error fields
+      console.error("Błąd pobierania pogody:", action.payload);
       return { ...state, weatherLoading: false, cityWeathersLoading: false, isFetchingLocationWeather: false };
     default:
       return state;
