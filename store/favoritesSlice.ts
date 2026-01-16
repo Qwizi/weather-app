@@ -1,28 +1,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { getJSON, setJSON } from '../lib/storage';
 
 export interface FavoriteCity {
   name: string;
   country: string;
   lat: number;
   lon: number;
+  icon?: string;
 }
 
 interface FavoritesState {
   cities: FavoriteCity[];
 }
 
-function loadFavorites(): FavoriteCity[] {
-  if (typeof window !== 'undefined') {
-    try {
-      const data = localStorage.getItem('favorites');
-      if (data) return JSON.parse(data);
-    } catch {}
-  }
-  return [];
-}
-
 const initialState: FavoritesState = {
-  cities: loadFavorites(),
+  cities: [],
 };
 
 const favoritesSlice = createSlice({
@@ -32,21 +24,18 @@ const favoritesSlice = createSlice({
     addFavorite: (state, action: PayloadAction<FavoriteCity>) => {
       if (!state.cities.some(c => c.name === action.payload.name && c.country === action.payload.country)) {
         state.cities.push(action.payload);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('favorites', JSON.stringify(state.cities));
-        }
+        setJSON('favorites', state.cities);
       }
     },
     removeFavorite: (state, action: PayloadAction<FavoriteCity>) => {
       state.cities = state.cities.filter(
         c => !(c.name === action.payload.name && c.country === action.payload.country)
       );
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('favorites', JSON.stringify(state.cities));
-      }
+      setJSON('favorites', state.cities);
     },
     setFavorites: (state, action: PayloadAction<FavoriteCity[]>) => {
       state.cities = action.payload;
+      setJSON('favorites', state.cities);
     },
   },
 });

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Noto_Sans } from "next/font/google";
-import "./globals.css";
-import { Plus, Bookmark, Cloud } from "lucide-react";
+
 import { ReduxProvider } from "../store/Provider";
-import { TemperatureToggleButton } from "./TemperatureToggleButton";
-import { DockPanel } from "./components/layout/DockPanel";
-import { Header } from "./components/layout/Header";
+import { DockPanel } from "../components/layout/DockPanel";
+import { Header } from "../components/layout/Header";
+
+
+import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-display",
@@ -40,14 +41,10 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${notoSans.variable} antialiased font-display bg-background-dark text-white min-h-screen flex flex-col overflow-x-hidden  `}
       >
         <ReduxProvider>
-          <div className="fixed inset-0 z-0  overflow-hidden">
-            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[120px]"></div>
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[#fa6238]/5 blur-[100px]"></div>
-            <div className="absolute inset-0 bg-grid-pattern opacity-30"></div>
-          </div>
+          
           <div className="relative z-10 flex flex-col h-full grow">
             <Header />
-            <main className="flex-1 w-full  mx-auto px-6 md:px-12 lg:px-20 py-8 flex-col gap-10">
+            <main className="flex-1 w-full mx-auto px-6 md:px-12 lg:px-20 py-8 flex-col gap-10">
               {children}
             </main>
             <DockPanel />

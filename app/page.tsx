@@ -1,68 +1,28 @@
-'use client';
-import { BigCityCardSkeleton } from "./components/BitCityCard";
+"use client";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { formatTemperature, formatLocalTime, formatLocalDate } from "@/lib/utils";
 import { LocateFixed, Search } from "lucide-react";
-import { CityCapsule } from "./components/CityCapsule";
+import { CityCapsule, CityCapsuleSkeletons } from "../components/CityCapsule";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { fetchWeather, fetchWeatherByCoords } from "@/utils/fetchWeather";
-import { useGeolocation } from "../hooks/useGeolocation";
-import { reverseGeocode } from "../utils/reverseGeocode";
-import WeatherHero from "./components/WeatherHero";
-
-interface WeatherData {
-  name: string;
-  country: string;
-  temp: number;
-  feels_like: number;
-  temp_min: number;
-  temp_max: number;
-  pressure: number;
-  humidity: number;
-  wind_speed: number;
-  wind_deg: number;
-  description: string;
-  icon: string;
-  visibility?: number;
-  clouds?: number;
-  sunrise?: number;
-  sunset?: number;
-  timezone?: number;
-  main?: string;
-  lat?: number;
-  lon?: number;
-  date?: string;
-
-}
+import { fetchWeather, fetchWeatherByCoords,reverseGeocode } from "@/utils/fetchWeather";
+import { useGeolocation,  } from "../hooks/useGeolocation";
+import WeatherHero, { WeatherHeroSkeleton } from "../components/WeatherHero";
+import { WeatherSummary } from "@/lib/types";
+import SearchBox from "@/components/SearchBox";
 
 
 export default function Home() {
 
   const { coords, error, loading, getLocation } = useGeolocation();
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [cityWeathers, setCityWeathers] = useState<WeatherData[]>([]);
-  const [searchValue, setSearchValue] = useState("");
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
-
-
-  const handleSearch = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!searchValue.trim()) return;
-    setSearchLoading(true);
-    setSearchError(null);
-    try {
-      const citySlug = encodeURIComponent(searchValue.trim().normalize("NFC"));
-      router.push(`/city/${citySlug}`);
-      setSearchValue("");
-      if (searchInputRef.current) searchInputRef.current.blur();
-    } catch (err: any) {
-      setSearchError("Nie znaleziono miasta lub błąd API");
-    } finally {
-      setSearchLoading(false);
-    }
-  };
+  const [weather, setWeather] = useState<WeatherSummary | null>(null);
+  const [cityWeathers, setCityWeathers] = useState<WeatherSummary[]>([]);
+  const [cityWeathersLoading, setCityWeathersLoading] = useState(true);
+  
+  const [isFetchingLocationWeather, setIsFetchingLocationWeather] = useState(false);
+  const [weatherLoading, setWeatherLoading] = useState(true);
+  const unit = useSelector((state: RootState) => state.temperature.unit);
 
   const handleGpsClick = async () => {
     await getLocation();
@@ -71,6 +31,8 @@ export default function Home() {
   useEffect(() => {
     const fetchWeatherForCoords = async () => {
       if (coords) {
+        setIsFetchingLocationWeather(true);
+        setWeatherLoading(true);
         try {
           const geo = await reverseGeocode(coords.lat, coords.lon);
           if (geo && geo[0]) {
@@ -102,6 +64,9 @@ export default function Home() {
           }
         } catch (e) {
           console.error("Błąd reverse geocoding/pogody:", e);
+        } finally {
+          setWeatherLoading(false);
+          setIsFetchingLocationWeather(false);
         }
       }
     };
@@ -119,13 +84,17 @@ export default function Home() {
       "Łódź",
       "Wrocław",
       "Poznań",
-      "Gdańsk"
+      "Szczecin"
     ];
 
     const fetchCitiesWeather = async () => {
+      setCityWeathersLoading(true);
       const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-      if (!apiKey) return;
-      const results: WeatherData[] = [];
+      if (!apiKey) {
+        setCityWeathersLoading(false);
+        return;
+      }
+      const results: WeatherSummary[] = [];
       for (const city of polishCities) {
         try {
           const weatherData = await fetchWeather(city);
@@ -148,84 +117,47 @@ export default function Home() {
         }
       }
       setCityWeathers(results);
+      setCityWeathersLoading(false);
     };
     fetchCitiesWeather();
   }, []);
 
   return (
     <div className="container mx-auto px-4">
-      <section className="flex flex-col items-center justify-center w-full  mx-auto gap-6 relative">
-        <form className="relative w-full group" onSubmit={handleSearch} autoComplete="off">
-          <div className="absolute -inset-1  rounded-full opacity-20 group-hover:opacity-40 blur transition duration-500"></div>
-          <div className="relative flex items-center w-full bg-[#1e2936]/90 backdrop-blur-xl rounded-full border border-glass-border h-16 shadow-2xl transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/50">
-            <div className="pl-4 pr-4 text-slate-400">
-              <Search />
-            </div>
-            <input
-              ref={searchInputRef}
-              className="w-full glass-panel border border-slate-400 text-white text-lg placeholder:text-slate-500 focus:ring-0 px-4 h-full font-medium font-body"
-              placeholder="Wyszukaj miasto..."
-              value={searchValue}
-              onChange={e => setSearchValue(e.target.value)}
-              disabled={searchLoading || loading}
-              autoComplete="off"
-            />
-            <div className="flex items-center gap-2 pr-2">
-              <button
-                type="submit"
-                className="flex items-center gap-2 bg-primary hover:bg-blue-600 text-white px-6 py-2.5 rounded-full transition duration-300 ease-in-out shadow-glow font-medium text-[20px] disabled:opacity-60"
-                disabled={searchLoading || loading}
-              >
-                {searchLoading ? (
-                  <span className="loader size-5" />
-                ) : (
-                  <Search />
-                )}
-                <span className="hidden md:inline">Szukaj</span>
-              </button>
-              <button
-                type="button"
-                className="flex items-center gap-2 bg-primary hover:bg-blue-600 text-white px-4 py-2.5 rounded-full transition duration-300 ease-in-out shadow-glow font-medium text-[20px] disabled:opacity-60"
-                onClick={handleGpsClick}
-                disabled={loading}
-              >
-                <LocateFixed />
-                <span className="hidden md:inline">GPS</span>
-              </button>
-            </div>
-          </div>
-          {searchError && <div className="text-red-500 mt-2 text-center">{searchError}</div>}
-        </form>
-      </section>
+      <SearchBox onGpsClick={handleGpsClick} isGpsLoading={loading} />
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mt-8">
         <div className="col-span-1 lg:col-span-2">
-          {loading ? <BigCityCardSkeleton /> : <WeatherHero
-            city={weather?.name || "Nieznane"}
-            country={weather?.country || "??"}
-            date={weather ? new Date((Date.now() + (weather.timezone || 0) * 1000)).toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : "--"}
-            time={weather ? new Date((Date.now() + (weather.timezone || 0) * 1000)).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }) : "--:--"}
-            temperature={weather ? `${Math.round(weather.temp)}°C` : "--°C"}
-            weatherDesc={weather ? weather.description : "Brak danych"}
-            feelsLike={weather ? `${Math.round(weather.feels_like)}°C` : "--°C"}
-            high={weather ? `${Math.round(weather.temp_max)}°C` : "--°C"}
-            low={weather ? `${Math.round(weather.temp_min)}°C` : "--°C"}
-            icon={weather?.icon || ""}
-            redirect={true}
-          />}
+          {weatherLoading || isFetchingLocationWeather ? (
+            <WeatherHeroSkeleton />
+          ) : weather ? (
+            <WeatherHero
+              city={weather.name}
+              country={weather.country}
+              date={formatLocalDate(Date.now() / 1000, weather.timezone || 0)}
+              time={formatLocalTime(Date.now() / 1000, weather.timezone || 0)}
+              temperature={formatTemperature(weather.temp, unit)}
+              weatherDesc={weather.description}
+              feelsLike={formatTemperature(weather.feels_like, unit)}
+              high={formatTemperature(weather.temp_max, unit)}
+              low={formatTemperature(weather.temp_min, unit)}
+              icon={weather.icon}
+              redirect={true}
+            />
+          ) : null}
         </div>
-        {cityWeathers.length === 0 && loading
-          ? [...Array(6)].map((_, i) => (
-              <div key={i} className="h-28 bg-glass-border/20 rounded-[3rem] animate-pulse" />
-            ))
-          : cityWeathers.map((cityWeather) => (
-              <CityCapsule key={cityWeather.name} weather={{
-                name: cityWeather.name,
-                country: cityWeather.country,
-                temp: cityWeather.temp,
-                description: cityWeather.description,
-                icon: cityWeather.icon,
-              }} />
-            ))}
+        {cityWeathersLoading ? (
+          <CityCapsuleSkeletons count={6} />
+        ) : (
+          cityWeathers.map((cityWeather) => (
+            <CityCapsule key={cityWeather.name} weather={{
+              name: cityWeather.name,
+              country: cityWeather.country,
+              temp: cityWeather.temp,
+              description: cityWeather.description,
+              icon: cityWeather.icon,
+            }} />
+          ))
+        )}
       </section>
     </div>
   );

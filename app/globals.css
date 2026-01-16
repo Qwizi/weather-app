@@ -1,94 +1,149 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
+@custom-variant dark (&:is(.dark *));
 
-:root {
-  /* Kolory tylko dark */
-  --color-primary: #2b8cee;
-  --color-background: #101922;
-  --color-surface: #192633;
-  --color-glass: rgba(25, 38, 51, 0.6);
-  --color-glass-border: rgba(255, 255, 255, 0.08);
+/* --- Theme Configuration --- */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
   --color-accent-hot: #fa6238;
   --color-accent-cold: #2b8cee;
 
-  /* Fonty */
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Noto Sans', sans-serif;
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
 
-  /* Border radius */
-  --radius-default: 1rem;
-  --radius-lg: 2rem;
-  --radius-xl: 3rem;
-  --radius-full: 9999px;
-
-  /* Box shadows */
   --shadow-glow: 0 0 20px rgba(43, 140, 238, 0.15);
   --shadow-glow-strong: 0 0 30px rgba(43, 140, 238, 0.3);
-
-  /* Background image */
-  --gradient-radial: radial-gradient(var(--tw-gradient-stops));
 }
 
-body {
-  background: var(--color-background);
-  color: #fff;
-  font-family: var(--font-body);
+/* --- Base Variables --- */
+:root, .dark {
+  /* Custom App Colors & Mappings */
+  --glass-bg: rgba(25, 38, 51, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  --background: #101922;
+  --foreground: #ffffff;
+
+  --card: #192633;
+  --card-foreground: #ffffff;
+
+  --popover: #192633;
+  --popover-foreground: #ffffff;
+
+  --primary: #2b8cee;
+  --primary-foreground: #ffffff;
+
+  --secondary: #192633;
+  --secondary-foreground: #ffffff;
+
+  --muted: rgba(25, 38, 51, 0.6);
+  --muted-foreground: #94a3b8;
+
+  --accent: #192633;
+  --accent-foreground: #ffffff;
+
+  --destructive: #7f1d1d;
+  --destructive-foreground: #ffffff;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #2b8cee;
+
+  --radius: 1rem;
 }
 
-@layer utilities {
-  .header {
-    @apply flex items-center justify-between px-6 py-6 md:px-12 lg:px-24  mx-auto w-full;
+/* --- Base Styles --- */
+@layer base {
+  *, ::after, ::before {
+    @apply border-border outline-ring/50;
   }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+}
+
+/* --- Utilities --- */
+@layer utilities {
   .dock-panel {
     @apply fixed bottom-8 left-1/2 -translate-x-1/2 z-50;
-
   }
+
   .dock-panel-content {
-    @apply flex items-center gap-3 p-2  backdrop-blur-lg border rounded-full shadow-2xl;
-    border-color: var(--color-glass-border);
-  }
-  .dock-button {
-    @apply size-12 rounded-full hover:bg-white/10 hover:cursor-pointer flex items-center justify-center text-slate-400 hover:text-white transition-colors;
+    @apply flex items-center gap-3 p-2 backdrop-blur-lg border rounded-full shadow-2xl;
+    background-color: var(--glass-bg);
+    border-color: var(--glass-border);
   }
 
+  .dock-button {
+    @apply size-14 rounded-full hover:bg-white/10 hover:cursor-pointer flex items-center justify-center text-slate-400 hover:text-white transition-colors;
+  }
 
   .dock-icon {
     @apply text-[28px] hover:cursor-pointer;
-
   }
+
   .vertical-divider {
     @apply w-px h-10 bg-white/10;
   }
+  
+  .glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-panel-hover:hover {
+    background: rgba(25, 38, 51, 0.7);
+    border-color: rgba(43, 140, 238, 0.3);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+  }
+
+  .bg-grid-pattern {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+  
+  .map-bg-image {
+    background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBY88epuG0FCHO2v79h4qVnD2okiTkodt3WYnBaRHCbWMA7tLmFoaE6ViivvUrdC3RLwD_pBvMRdmHEaD8XcUaK_qRqSAcpc-sXoC8yXHAMVs8j9dYCF8OR3W4SAEgeTlLO06VTMaETXqR4ehj6SxbQvyJEr-89bodCMkL057nBE3C5BjEvFvTS_ThDtIS04yFTNdjHvZsfcZUcCzBaovPkITP9nFNViXUAsDhrKHPylkJLNwzGpf_5sRpf8X-zZLQ7HFfZ2ezRg3s');
+    background-size: cover;
+    background-position: center;
+  }
 }
 
+/* --- Animations --- */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.18) 50%, rgba(255, 255, 255, 0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s infinite linear;
+}
 
- /* Custom Scrollbar for a cleaner look */
-        
-
-        /* Glassmorphism utilities */
-        .glass-panel {
-            background: rgba(25, 38, 51, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .glass-panel-hover:hover {
-            background: rgba(25, 38, 51, 0.7);
-            border-color: rgba(43, 140, 238, 0.3);
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
-            transform: translateY(-2px);
-        }
-
-        /* Background Pattern */
-        .bg-grid-pattern {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-        }
-
-        .map-bg-image {
-          background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBY88epuG0FCHO2v79h4qVnD2okiTkodt3WYnBaRHCbWMA7tLmFoaE6ViivvUrdC3RLwD_pBvMRdmHEaD8XcUaK_qRqSAcpc-sXoC8yXHAMVs8j9dYCF8OR3W4SAEgeTlLO06VTMaETXqR4ehj6SxbQvyJEr-89bodCMkL057nBE3C5BjEvFvTS_ThDtIS04yFTNdjHvZsfcZUcCzBaovPkITP9nFNViXUAsDhrKHPylkJLNwzGpf_5sRpf8X-zZLQ7HFfZ2ezRg3s'); 
-          background-size: cover;
-           background-position: center;
-        }
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}

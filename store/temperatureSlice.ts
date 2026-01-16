@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
-
-export type TemperatureUnit = 'C' | 'F';
+import { isTemperatureUnit, type TemperatureUnit } from '../lib/utils';
+import { getLocalStorageItem, setLocalStorageItem } from '../lib/storage';
 
 interface TemperatureState {
   unit: TemperatureUnit;
@@ -15,10 +15,21 @@ const temperatureSlice = createSlice({
   initialState,
   reducers: {
     toggleUnit: (state) => {
-      state.unit = state.unit === 'C' ? 'F' : 'C';
+      // Cycle through C -> F -> K -> C
+      if (state.unit === 'C') {
+        state.unit = 'F';
+      } else if (state.unit === 'F') {
+        state.unit = 'K';
+      } else {
+        state.unit = 'C';
+      }
+      setLocalStorageItem('temperatureUnit', state.unit);
     },
     setUnit: (state, action) => {
-      state.unit = action.payload;
+      if (isTemperatureUnit(action.payload)) {
+        state.unit = action.payload;
+        setLocalStorageItem('temperatureUnit', state.unit);
+      }
     },
   },
 });

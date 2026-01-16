@@ -1,7 +1,7 @@
 "use client";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../store/store";
-import { toggleUnit } from "../store/temperatureSlice";
+import { RootState } from "../../store/store";
+import { toggleUnit } from "../../store/temperatureSlice";
 
 export function TemperatureToggleButton() {
   const unit = useSelector((state: RootState) => state.temperature.unit);
@@ -15,7 +15,9 @@ export function TemperatureToggleButton() {
     >
       <span className={unit === "C" ? "text-white font-bold" : "text-slate-500"}>°C</span>
       <span className="text-slate-500">/</span>
-      <span className={unit === "F" ? "text-white font-bold text-sm" : "text-slate-500 text-sm"}>°F</span>
+      <span className={unit === "F" ? "text-white font-bold" : "text-slate-500"}>°F</span>
+      <span className="text-slate-500">/</span>
+      <span className={unit === "K" ? "text-white font-bold" : "text-slate-500"}>K</span>
     </button>
   );
 }
