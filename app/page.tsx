@@ -49,6 +49,7 @@ export default function Home() {
   const router = useRouter();
   const [isFetchingLocationWeather, setIsFetchingLocationWeather] = useState(false);
   const [weatherLoading, setWeatherLoading] = useState(true);
+  const unit = useSelector((state: RootState) => state.temperature.unit);
 
 
   const handleSearch = async (e?: React.FormEvent) => {

@@ -48,6 +48,9 @@ const favoritesSlice = createSlice({
     },
     setFavorites: (state, action: PayloadAction<FavoriteCity[]>) => {
       state.cities = action.payload;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('favorites', JSON.stringify(state.cities));
+      }
     },
   },
 });

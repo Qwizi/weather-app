@@ -2,7 +2,7 @@
 .skeleton-shimmer {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.05) 75%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.18) 50%, rgba(255, 255, 255, 0.05) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.3s infinite linear;
 }
@@ -11,10 +11,12 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
 }
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -91,54 +93,57 @@ body {
     @apply fixed bottom-8 left-1/2 -translate-x-1/2 z-50;
 
   }
+
   .dock-panel-content {
-    @apply flex items-center gap-3 p-2  backdrop-blur-lg border rounded-full shadow-2xl;
+    @apply flex items-center gap-3 p-2 backdrop-blur-lg border rounded-full shadow-2xl;
     border-color: var(--color-glass-border);
   }
+
   .dock-button {
-    @apply size-12 rounded-full hover:bg-white/10 hover:cursor-pointer flex items-center justify-center text-slate-400 hover:text-white transition-colors;
+    @apply size-14 rounded-full hover:bg-white/10 hover:cursor-pointer flex items-center justify-center text-slate-400 hover:text-white transition-colors;
   }
 
   .dock-icon {
     @apply text-[28px] hover:cursor-pointer;
 
   }
+
   .vertical-divider {
     @apply w-px h-10 bg-white/10;
   }
 }
 
- /* Custom Scrollbar for a cleaner look */
+/* Custom Scrollbar for a cleaner look */
 
-        /* Glassmorphism utilities */
-        .glass-panel {
-            background: rgba(25, 38, 51, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+/* Glassmorphism utilities */
+.glass-panel {
+  background: rgba(25, 38, 51, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-        .glass-panel-hover:hover {
-            background: rgba(25, 38, 51, 0.7);
-            border-color: rgba(43, 140, 238, 0.3);
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
-            transform: translateY(-2px);
-        }
+.glass-panel-hover:hover {
+  background: rgba(25, 38, 51, 0.7);
+  border-color: rgba(43, 140, 238, 0.3);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
 
-        /* Background Pattern */
-        .bg-grid-pattern {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-        }
+/* Background Pattern */
+.bg-grid-pattern {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
 
-        .map-bg-image {
-          background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBY88epuG0FCHO2v79h4qVnD2okiTkodt3WYnBaRHCbWMA7tLmFoaE6ViivvUrdC3RLwD_pBvMRdmHEaD8XcUaK_qRqSAcpc-sXoC8yXHAMVs8j9dYCF8OR3W4SAEgeTlLO06VTMaETXqR4ehj6SxbQvyJEr-89bodCMkL057nBE3C5BjEvFvTS_ThDtIS04yFTNdjHvZsfcZUcCzBaovPkITP9nFNViXUAsDhrKHPylkJLNwzGpf_5sRpf8X-zZLQ7HFfZ2ezRg3s'); 
-          background-size: cover;
-           background-position: center;
-        }
+.map-bg-image {
+  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBY88epuG0FCHO2v79h4qVnD2okiTkodt3WYnBaRHCbWMA7tLmFoaE6ViivvUrdC3RLwD_pBvMRdmHEaD8XcUaK_qRqSAcpc-sXoC8yXHAMVs8j9dYCF8OR3W4SAEgeTlLO06VTMaETXqR4ehj6SxbQvyJEr-89bodCMkL057nBE3C5BjEvFvTS_ThDtIS04yFTNdjHvZsfcZUcCzBaovPkITP9nFNViXUAsDhrKHPylkJLNwzGpf_5sRpf8X-zZLQ7HFfZ2ezRg3s');
+  background-size: cover;
+  background-position: center;
+}
 
-        @theme inline {
+@theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -179,7 +184,7 @@ body {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-        .dark {
+.dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -213,10 +218,11 @@ body {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-        @layer base {
+@layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

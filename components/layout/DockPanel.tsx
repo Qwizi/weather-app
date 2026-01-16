@@ -12,7 +12,7 @@ import { useRef, useEffect as useReactEffect } from "react";
 
 export const DockPanel = () => {
 
-    const [linkToRedirect, setLinkToRedirect] = useState("/saved");
+    const [linkToRedirect, setLinkToRedirect] = useState("/favorites");
     const pathname = usePathname();
     const favorites = useSelector((state: RootState) => state.favorites.cities);
     const favoritesCount = favorites.length;
@@ -24,7 +24,7 @@ export const DockPanel = () => {
     }, []);
 
 
-    const icon = pathname === "/saved" ? <Home className="dock-icon" /> : <>
+    const icon = pathname === "/favorites" ? <Home className="dock-icon" /> : <>
         <div className="relative">
             <Bookmark className="dock-icon" ref={dockIconRef} />
             {mounted && (
@@ -36,7 +36,7 @@ export const DockPanel = () => {
     </>;
 
     useEffect(() => {
-        setLinkToRedirect(pathname === "/saved" ? "/" : "/saved");
+        setLinkToRedirect(pathname === "/favorites" ? "/" : "/favorites");
     }, [pathname]);
 
     return (
