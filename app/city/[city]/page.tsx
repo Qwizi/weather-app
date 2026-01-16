@@ -11,7 +11,7 @@ import { fetchWeather, fetchForecastByCoords } from "@/utils/fetchWeather";
 import WeatherHero, { WeatherHeroSkeleton } from "@/components/WeatherHero";
 import HourlyForecast from "@/components/HourlyForecast";
 import StatCard from "@/components/StatCard";
-import SevenDayForecast from "@/components/SevenDayForecast";
+import FiveDayForecast from "@/components/FiveDayForecast";
 import SunTimes from "@/components/SunTimes";
 import BookmarkButton from "@/components/BookmarkButton";
 import { WeatherDetails, OpenWeatherForecastResponse } from "@/lib/types";
@@ -130,7 +130,7 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
                     />
                   </div>
                   <div className=" p-4 flex-1 min-w-0">
-                    <SevenDayForecast
+                    <FiveDayForecast
                       days={
                         // Group forecast items by day
                         Object.values(forecast.list.reduce((acc: any, item: any) => {
@@ -140,7 +140,7 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
                           }
                           acc[date].push(item);
                           return acc;
-                        }, {})).slice(0, 7).map((dayItems: any, i) => {
+                        }, {})).slice(0, 5).map((dayItems: any, i) => {
                           // Find min/max for the whole day
                           const minTemp = Math.min(...dayItems.map((d: any) => d.main.temp_min));
                           const maxTemp = Math.max(...dayItems.map((d: any) => d.main.temp_max));

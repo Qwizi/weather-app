@@ -1,13 +1,11 @@
 import { convertTemperature } from "../lib/utils";
-import { Sun, Bookmark } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { addFavorite, removeFavorite, FavoriteCity } from "../store/favoritesSlice";
+import {  FavoriteCity } from "../store/favoritesSlice";
 import { useRouter } from "next/navigation";
 import { RootState } from "../store/store";
 import BookmarkButton from "./BookmarkButton";
 import { WeatherIcon } from "./WeatherIcon";
 import { useRef, useEffect, useState } from "react";
-import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
 interface CityCapsuleWeather {

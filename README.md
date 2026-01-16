@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Weather App
 
-## Getting Started
+Aplikacja pogodowa zbudowana w oparciu o Next.js 16, oferująca szczegółowe prognozy pogody, obsługę wielu lokalizacji.
 
-First, run the development server:
+## Jak uruchomić projekt
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Wymagania wstępne
+- Node.js (zalecana wersja 20.x lub nowsza)
+- Klucz API OpenWeatherMap
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Instalacja i uruchomienie
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Pobierz repozytorium i wejdź do katalogu projektu:**
+   ```bash
+   cd weather-app
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Zainstaluj zależności:**
+   ```bash
+   npm install
+   ```
 
-## Learn More
+3. **Skonfiguruj zmienne środowiskowe:**
+   Utwórz plik `.env.local` w głównym katalogu projektu i dodaj swój klucz API:
+   ```env
+   NEXT_PUBLIC_OPENWEATHER_API_KEY=twoj_klucz_api_tutaj
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+4. **Uruchom wersję deweloperską:**
+   ```bash
+   npm run dev
+   ```
+   Aplikacja będzie dostępna pod adresem [http://localhost:3000](http://localhost:3000).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. **Budowanie wersji produkcyjnej:**
+   ```bash
+   npm run build
+   npm start
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Lista wykorzystanych technologii
 
-## Deploy on Vercel
+- **Framework:** Next.js 16 (App Router)
+- **Język:** TypeScript
+- **Zarządzanie stanem:** Redux Toolkit (React Redux)
+- **Stylowanie:** Tailwind CSS v4
+- **Komponenty UI:** Lucide React (ikony), Shadcn-like glassmorphism
+- **Animacje:** GSAP (GreenSock), tw-animate-css
+- **API:** OpenWeatherMap (Geocoding, Current Weather, 5 Day Forecast)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Struktura katalogów
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **`app/`** - Główny katalog routera Next.js (App Router). Zawiera strony (`page.tsx`), layouy oraz globalne style.
+  - `city/[city]/` - Dynamiczna ścieżka dla szczegółów wybranego miasta.
+- **`components/`** - Komponenty wielokrotnego użytku (np. `WeatherHero`, `HourlyForecast`, `StatCard`).
+  - `layout/` - Komponenty strukturalne (Nagłówek, Panel nawigacyjny).
+- **`store/`** - Konfiguracja Reduxa (definicje `slices`).
+- **`lib/`** - Konfiguracje typów i funkcji pomocniczych (np. formatowanie, wrappery storage).
+- **`utils/`** - Funkcje do komunikacji z API (`fetchWeather.ts`).
+- **`hooks/`** - Niestandardowe hooki (np. `useGeolocation`).
+
+## Główne funkcjonalności
+
+1. **Wyszukiwanie i Geolokalizacja:**
+   - Wyszukiwanie miast po nazwie.
+   - Automatyczne wykrywanie lokalizacji użytkownika (GPS).
+2. **Szczegółowa prognoza:**
+   - Aktualna pogoda, temperatura odczuwalna, wiatr, wilgotność, UV, widoczność.
+   - Wykres pogody godzinowej na najbliższe 24h.
+   - Prognoza na 5 dni z wizualizacją zakresu temperatur.
+   - Czasy wschodów i zachodów słońca.
+3. **Personalizacja:**
+   - Dostępne jednostki temperatury: Celsjusz (°C), Fahrenheit (°F), Kelvin (K).
+   - System ulubionych miast z szybkim dostępem przez DockPanel.
+   - Ustawienia (jednostki, ulubione) są zapisywane w pamięci przeglądarki.

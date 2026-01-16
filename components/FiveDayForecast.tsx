@@ -11,11 +11,11 @@ interface DayForecast {
   maxTemp: number;
 }
 
-interface SevenDayForecastProps {
+interface FiveDayForecastProps {
   days: DayForecast[];
 }
 
-export default function SevenDayForecast({ days }: SevenDayForecastProps) {
+export default function FiveDayForecast({ days }: FiveDayForecastProps) {
   const minTemps = days.map(d => d.minTemp);
   const maxTemps = days.map(d => d.maxTemp);
   const weekMin = Math.min(...minTemps);
@@ -26,7 +26,7 @@ export default function SevenDayForecast({ days }: SevenDayForecastProps) {
     <div className="glass-panel rounded-4xl p-6 h-full flex flex-col">
       <h3 className="text-xl font-bold text-white mb-6 pl-2 flex items-center gap-2">
         <CalendarDays className="w-5 h-5 text-primary" />
-        7 Dni
+        5 Dni
       </h3>
       <div className="flex flex-col gap-1 flex-1 overflow-y-auto pr-2 custom-scrollbar">
         {days.map((d, i) => {
