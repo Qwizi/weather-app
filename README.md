@@ -44,8 +44,8 @@ Aplikacja pogodowa zbudowana w oparciu o Next.js 16, oferująca szczegółowe pr
 - **Język:** TypeScript
 - **Zarządzanie stanem:** Redux Toolkit (React Redux)
 - **Stylowanie:** Tailwind CSS v4
-- **Komponenty UI:** Lucide React (ikony), Shadcn-like glassmorphism
-- **Animacje:** GSAP (GreenSock), tw-animate-css
+- **Komponenty UI:** Lucide React (ikony)
+- **Animacje:** GSAP
 - **API:** OpenWeatherMap (Geocoding, Current Weather, 5 Day Forecast)
 
 ## Struktura katalogów
