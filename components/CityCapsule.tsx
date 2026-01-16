@@ -1,3 +1,4 @@
+import { convertTemperature } from "../lib/utils";
 import { Sun, Bookmark } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addFavorite, removeFavorite, FavoriteCity } from "../store/favoritesSlice";
@@ -5,6 +6,9 @@ import { useRouter } from "next/navigation";
 import { RootState } from "../store/store";
 import BookmarkButton from "./BookmarkButton";
 import { WeatherIcon } from "./WeatherIcon";
+import { useRef, useEffect, useState } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
 interface CityCapsuleWeather {
   name: string;
@@ -24,23 +28,21 @@ interface CityCapsuleProps {
 
 export const CityCapsuleSkeleton = () => {
   return (
-    <div className="relative glass-panel rounded-[3rem] p-6 flex items-center justify-between gap-4 animate-pulse">
-      
-
+    <div className="relative glass-panel rounded-[3rem] p-6 flex items-center justify-between gap-4">
       <div className="flex items-center gap-6 pl-4">
         <div className="flex flex-col gap-3">
-          <div className="h-8 w-40 bg-white/10 rounded-lg" />
-          <div className="h-4 w-24 bg-white/10 rounded-md" />
+          <div className="h-8 w-40 bg-white/10 rounded-lg skeleton-shimmer" />
+          <div className="h-4 w-24 bg-white/10 rounded-md skeleton-shimmer" />
         </div>
       </div>
 
       <div className="flex items-center gap-6 pr-4">
         <div className="flex flex-col items-end gap-3">
-          <div className="h-10 w-20 bg-white/10 rounded-lg" />
-          <div className="h-4 w-28 bg-white/10 rounded-md" />
+          <div className="h-10 w-20 bg-white/10 rounded-lg skeleton-shimmer" />
+          <div className="h-4 w-28 bg-white/10 rounded-md skeleton-shimmer" />
         </div>
         <div className="glass-panel rounded-full p-3 flex items-center justify-center w-16 h-16">
-          <div className="w-8 h-8 bg-white/10 rounded-full" />
+          <div className="w-8 h-8 bg-white/10 rounded-full skeleton-shimmer" />
         </div>
       </div>
     </div>
@@ -58,18 +60,50 @@ export const CityCapsuleSkeletons = ({ count = 6 }: CityCapsuleSkeletonProps) =>
 }
 
 
+
+
 export function CityCapsule({ weather }: CityCapsuleProps) {
   const unit = useSelector((state: RootState) => state.temperature.unit);
   const favorites = useSelector((state: RootState) => state.favorites.cities);
   const dispatch = useDispatch();
-  const toF = (c: number) => (c * 9) / 5 + 32;
-  const temp = unit === "C" ? weather.temp : toF(weather.temp);
+  const temp = convertTemperature(weather.temp, unit);
+  const [displayTemp, setDisplayTemp] = useState(Math.round(temp));
+  const tempRef = useRef<HTMLSpanElement>(null);
   const router = useRouter();
   const isFavorite = favorites.some(c => c.name === weather.name && c.country === weather.country);
   const cityObj: FavoriteCity = { name: weather.name, country: weather.country, lat: (weather as any).lat ?? (weather as any).coord?.lat ?? 0, lon: (weather as any).lon ?? (weather as any).coord?.lon ?? 0 };
+  const capsuleRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (capsuleRef.current) {
+      gsap.fromTo(
+        capsuleRef.current,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: "power2.out"
+        }
+      );
+    }
+    // Animate temperature count up
+    if (tempRef.current) {
+      const end = Math.round(temp);
+      const obj = { val: end - 10 };
+      gsap.to(obj, {
+        val: end,
+        duration: 1,
+        ease: "power3.out",
+        onUpdate: () => setDisplayTemp(Math.round(obj.val))
+      });
+    }
+  }, [temp]);
+
   return (
     <div
-      className="glass-panel glass-panel-hover rounded-[3rem] p-6 flex items-center justify-between gap-4 cursor-pointer transition-all duration-300 group"
+      ref={capsuleRef}
+      className="glass-panel glass-panel-hover rounded-[3rem] p-6 flex items-center justify-between gap-4 cursor-pointer transition-all duration-300 group hover:scale-[1.03]"
       onClick={() => router.push(`/city/${encodeURIComponent(weather.name)}`)}
       tabIndex={0}
       role="button"
@@ -80,7 +114,6 @@ export function CityCapsule({ weather }: CityCapsuleProps) {
         <BookmarkButton
           isFavorite={isFavorite}
           cityObj={cityObj}
-
         />
       </div>
       <div className="flex items-center gap-6 pl-4">
@@ -94,7 +127,7 @@ export function CityCapsule({ weather }: CityCapsuleProps) {
 
       <div className="flex items-center gap-6 pr-4">
         <div className="text-right">
-          <span className="block text-4xl font-bold text-white">{Math.round(temp)}°{unit}</span>
+          <span ref={tempRef} className="block text-4xl font-bold text-white">{displayTemp}°{unit}</span>
           <span className="text-sm text-slate-400 capitalize">{weather.description}</span>
         </div>
         <div className="glass-panel rounded-full p-3 flex items-center justify-center w-16 h-16">

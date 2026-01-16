@@ -5,6 +5,7 @@ export interface FavoriteCity {
   country: string;
   lat: number;
   lon: number;
+  icon?: string;
 }
 
 interface FavoritesState {

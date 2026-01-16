@@ -1,11 +1,13 @@
-'use client';
+"use client";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { convertTemperature } from "../lib/utils";
 import { LocateFixed, Search } from "lucide-react";
 import { CityCapsule, CityCapsuleSkeletons } from "../components/CityCapsule";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { fetchWeather, fetchWeatherByCoords } from "@/utils/fetchWeather";
-import { useGeolocation } from "../hooks/useGeolocation";
-import { reverseGeocode } from "../utils/reverseGeocode";
+import { fetchWeather, fetchWeatherByCoords,reverseGeocode } from "@/utils/fetchWeather";
+import { useGeolocation,  } from "../hooks/useGeolocation";
 import WeatherHero, { WeatherHeroSkeleton } from "../components/WeatherHero";
 
 interface WeatherData {
@@ -219,11 +221,11 @@ export default function Home() {
               country={weather.country}
               date={new Date((Date.now() + (weather.timezone || 0) * 1000)).toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               time={new Date((Date.now() + (weather.timezone || 0) * 1000)).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
-              temperature={`${Math.round(weather.temp)}°C`}
+              temperature={`${Math.round(convertTemperature(weather.temp, unit))}°${unit}`}
               weatherDesc={weather.description}
-              feelsLike={`${Math.round(weather.feels_like)}°C`}
-              high={`${Math.round(weather.temp_max)}°C`}
-              low={`${Math.round(weather.temp_min)}°C`}
+              feelsLike={`${Math.round(convertTemperature(weather.feels_like, unit))}°${unit}`}
+              high={`${Math.round(convertTemperature(weather.temp_max, unit))}°${unit}`}
+              low={`${Math.round(convertTemperature(weather.temp_min, unit))}°${unit}`}
               icon={weather.icon}
               redirect={true}
             />

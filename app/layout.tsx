@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Noto_Sans } from "next/font/google";
-import "./globals.css";
-import { Plus, Bookmark, Cloud } from "lucide-react";
+
 import { ReduxProvider } from "../store/Provider";
-import { TemperatureToggleButton } from "./TemperatureToggleButton";
 import { DockPanel } from "../components/layout/DockPanel";
 import { Header } from "../components/layout/Header";
-import  Aurora  from "../components/Aurora";
+
+
+import "./globals.css";
+
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-display",
   subsets: ["latin"],

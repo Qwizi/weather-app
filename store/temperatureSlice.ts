@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-export type TemperatureUnit = 'C' | 'F';
+export type TemperatureUnit = 'C' | 'F' | 'K';
 
 interface TemperatureState {
   unit: TemperatureUnit;
@@ -15,10 +15,19 @@ const temperatureSlice = createSlice({
   initialState,
   reducers: {
     toggleUnit: (state) => {
-      state.unit = state.unit === 'C' ? 'F' : 'C';
+      // Cycle through C -> F -> K -> C
+      if (state.unit === 'C') {
+        state.unit = 'F';
+      } else if (state.unit === 'F') {
+        state.unit = 'K';
+      } else {
+        state.unit = 'C';
+      }
     },
     setUnit: (state, action) => {
-      state.unit = action.payload;
+      if (["C", "F", "K"].includes(action.payload)) {
+        state.unit = action.payload;
+      }
     },
   },
 });

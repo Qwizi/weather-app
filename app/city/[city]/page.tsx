@@ -1,14 +1,13 @@
-
 "use client";
-import { Sun, Cloudy, CloudRain, CloudDrizzle, CloudLightning, Snowflake, CloudFog, Wind, CloudOff, Undo2, Bookmark } from "lucide-react";
 import React from "react";
+import { convertTemperature } from "../../../lib/utils";
+import { Sun, Cloudy, CloudRain, CloudDrizzle, CloudLightning, Snowflake, CloudFog, Wind, CloudOff, Undo2, Bookmark } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addFavorite, removeFavorite, FavoriteCity } from "../../../store/favoritesSlice";
+import {  FavoriteCity } from "../../../store/favoritesSlice";
 import { RootState } from "../../../store/store";
 import { useRouter } from "next/navigation";
-import { fetchWeather } from "@/utils/fetchWeather";
-import { fetchForecastByCoords } from "@/utils/fetchForecast";
+import { fetchWeather, fetchForecastByCoords } from "@/utils/fetchWeather";
 import WeatherHero, { WeatherHeroSkeleton } from "../../../components/WeatherHero";
 import HourlyForecast from "../../../components/HourlyForecast";
 import StatCard from "../../../components/StatCard";
@@ -46,30 +45,6 @@ interface WeatherData {
 
 
 
-// Helper: Map OpenWeather main to Lucide icon
-function getLucideIcon(main: string) {
-  switch (main) {
-    case "Clear": return <Sun className="inline w-7 h-7 text-yellow-400" />;
-    case "Clouds": return <Cloudy className="inline w-7 h-7 text-slate-300" />;
-    case "Rain": return <CloudRain className="inline w-7 h-7 text-blue-400" />;
-    case "Drizzle": return <CloudDrizzle className="inline w-7 h-7 text-blue-300" />;
-    case "Thunderstorm": return <CloudLightning className="inline w-7 h-7 text-yellow-300" />;
-    case "Snow": return <Snowflake className="inline w-7 h-7 text-cyan-200" />;
-    case "Mist":
-    case "Smoke":
-    case "Haze":
-    case "Dust":
-    case "Fog":
-    case "Sand":
-    case "Ash":
-      return <CloudFog className="inline w-7 h-7 text-slate-400" />;
-    case "Squall":
-    case "Tornado":
-      return <Wind className="inline w-7 h-7 text-slate-400" />;
-    default: return <CloudOff className="inline w-7 h-7 text-slate-400" />;
-  }
-}
-
 // Helper: Format time from unix and timezone offset
 function formatTime(unix: number, timezone: number) {
   const date = new Date((unix + timezone) * 1000);
@@ -89,7 +64,6 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
   const dispatch = useDispatch();
   const isFavorite = weather && favorites.some(c => c.name === weather.name && c.country === weather.country);
   const cityObj: FavoriteCity | null = weather ? { name: weather.name, country: weather.country, lat: 0, lon: 0 } : null;
-  const toF = (c: number) => (c * 9) / 5 + 32;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -165,11 +139,11 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
                 country={weather.country}
                 date={"Dziś"}
                 time={formatTime(Date.now() / 1000, +1)}
-                temperature={`${Math.round(unit === "C" ? weather.temp : toF(weather.temp))}°${unit}`}
+                temperature={`${Math.round(convertTemperature(weather.temp, unit))}°${unit}`}
                 weatherDesc={weather.description}
-                feelsLike={`${Math.round(unit === "C" ? weather.feels_like : toF(weather.feels_like))}°${unit}`}
-                high={`${Math.round(unit === "C" ? weather.temp_max : toF(weather.temp_max))}°${unit}`}
-                low={`${Math.round(unit === "C" ? weather.temp_min : toF(weather.temp_min))}°${unit}`}
+                feelsLike={`${Math.round(convertTemperature(weather.feels_like, unit))}°${unit}`}
+                high={`${Math.round(convertTemperature(weather.temp_max, unit))}°${unit}`}
+                low={`${Math.round(convertTemperature(weather.temp_min, unit))}°${unit}`}
               />
             </section>
             <section className="flex flex-col gap-6 mt-6">
@@ -177,14 +151,17 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
                 <div className="flex flex-col gap-6 w-full">
                   <div className="flex-1 ">
                     <HourlyForecast
-                      hours={forecast.list.slice(0, 8).map((item: any, idx: number) => ({
-                        time: item.dt_txt.split(' ')[1].slice(0, 5),
-                        icon: item.weather[0].icon,
-                        temp: `${Math.round(item.main.temp)}°C`,
-                        desc: item.weather[0].description,
-                        pop: item.pop ? `${Math.round(item.pop * 100)}%` : '',
-                        accent: idx === 0,
-                      }))}
+                      hours={forecast.list.slice(0, 8).map((item: any, idx: number) => {
+                        const tempVal = convertTemperature(item.main.temp, unit);
+                        return {
+                          time: item.dt_txt.split(' ')[1].slice(0, 5),
+                          icon: item.weather[0].icon,
+                          temp: `${Math.round(tempVal)}°${unit}`,
+                          desc: item.weather[0].description,
+                          pop: item.pop ? `${Math.round(item.pop * 100)}%` : '',
+                          accent: idx === 0,
+                        };
+                      })}
                     />
                   </div>
                   <div className=" p-4 flex-1 min-w-0">
@@ -195,13 +172,15 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
                           return date.getDate() === (new Date().getDate() + i) && item.dt_txt.includes('12:00:00');
                         });
                         const item = dayItems[0] || forecast.list[i * 8] || forecast.list[0];
+                        const low = convertTemperature(item.main.temp_min, unit);
+                        const high = convertTemperature(item.main.temp_max, unit);
                         return {
                           day: i === 0 ? 'Dziś' :
                             new Date(Date.now() + i * 24 * 60 * 60 * 1000).toLocaleDateString('pl-PL', { weekday: 'short' }),
                           icon: item.weather[0].main === 'Rain' ? 'rainy' : item.weather[0].main === 'Clouds' ? 'cloud' : item.weather[0].main === 'Snow' ? 'snow' : item.weather[0].main === 'Clear' ? 'sunny' : 'cloud',
                           pop: item.pop ? `${Math.round(item.pop * 100)}%` : '',
-                          low: `${Math.round(item.main.temp_min)}°C`,
-                          high: `${Math.round(item.main.temp_max)}°C`,
+                          low: `${Math.round(low)}°${unit}`,
+                          high: `${Math.round(high)}°${unit}`,
                         };
                       })}
                     />
