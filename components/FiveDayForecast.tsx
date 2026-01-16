@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { CalendarDays } from "lucide-react";
 import { WeatherIcon } from "./WeatherIcon";
 
@@ -16,11 +17,14 @@ interface FiveDayForecastProps {
 }
 
 export default function FiveDayForecast({ days }: FiveDayForecastProps) {
-  const minTemps = days.map(d => d.minTemp);
-  const maxTemps = days.map(d => d.maxTemp);
-  const weekMin = Math.min(...minTemps);
-  const weekMax = Math.max(...maxTemps);
-  const range = (weekMax - weekMin) || 1;
+  const { weekMin, range } = useMemo(() => {
+    if (!days.length) return { weekMin: 0, range: 1 };
+    const minTemps = days.map(d => d.minTemp);
+    const maxTemps = days.map(d => d.maxTemp);
+    const weekMin = Math.min(...minTemps);
+    const weekMax = Math.max(...maxTemps);
+    return { weekMin, range: (weekMax - weekMin) || 1 };
+  }, [days]);
 
   return (
     <div className="glass-panel rounded-4xl p-6 h-full flex flex-col">

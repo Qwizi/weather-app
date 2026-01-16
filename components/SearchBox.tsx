@@ -1,7 +1,7 @@
 "use client";
 
 import { LocateFixed, Search } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 interface SearchBoxProps {
@@ -16,7 +16,7 @@ export default function SearchBox({ onGpsClick, isGpsLoading }: SearchBoxProps) 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const handleSearch = async (e?: React.FormEvent) => {
+  const handleSearch = useCallback(async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!searchValue.trim()) return;
     setSearchLoading(true);
@@ -31,7 +31,7 @@ export default function SearchBox({ onGpsClick, isGpsLoading }: SearchBoxProps) 
     } finally {
       setSearchLoading(false);
     }
-  };
+  }, [searchValue, router]);
 
   return (
     <section className="flex flex-col items-center justify-center w-full mx-auto gap-6 relative">
