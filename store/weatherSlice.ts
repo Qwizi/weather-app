@@ -24,11 +24,14 @@ const initialState: WeatherState = {
 export const fetchWeather = createAsyncThunk(
   'weather/fetchWeather',
   async (city: string) => {
-    const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY || process.env.OPENWEATHER_API_KEY;
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Błąd pobierania pogody');
+    // Call our internal API which handles caching and OWM key
+    const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+    if (!res.ok) {
+         const errorData = await res.json();
+         throw new Error(errorData.error || 'Błąd pobierania pogody');
+    }
     const data = await res.json();
+    
     return {
       city: data.name,
       country: data.sys.country,

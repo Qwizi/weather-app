@@ -33,6 +33,23 @@ export interface WeatherDetails extends WeatherSummary {
   main: string;
 }
 
+export interface GeoResult {
+    name: string;
+    lat: number;
+    lon: number;
+    country: string;
+    state?: string;
+}
+
+export interface ReverseGeoResult {
+    name: string;
+    local_names?: Record<string, string>;
+    lat: number;
+    lon: number;
+    country: string;
+    state?: string;
+}
+
 export interface OpenWeatherResponse {
   coord: { lon: number; lat: number };
   weather: { id: number; main: string; description: string; icon: string }[];

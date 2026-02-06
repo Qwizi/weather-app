@@ -1,0 +1,34 @@
+services:
+  app:
+    build: .
+    container_name: weather-app
+    restart: always
+    ports:
+      - "3005:3000"
+    env_file:
+      - .env
+    environment:
+      - NEXT_PUBLIC_OPENWEATHER_API_KEY=123
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - weather-net
+
+  redis:
+    image: valkey/valkey:8
+    container_name: weather-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - weather-net
+
+networks:
+  weather-net:
+    driver: bridge
+
+volumes:
+  redis-data:

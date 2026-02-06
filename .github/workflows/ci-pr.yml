@@ -1,0 +1,8 @@
+name: Pull Request CI
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  check:
+    uses: ./.github/workflows/reusable-checks.yml
