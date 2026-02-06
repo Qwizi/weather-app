@@ -28,8 +28,8 @@ export async function GET(request: NextRequest) {
     
     await setCachedData(cacheKey, data, 86400); // 24h
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API Error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to reverse geocode' }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message || 'Failed to reverse geocode' }, { status: 500 });
   }
 }

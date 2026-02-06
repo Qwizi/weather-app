@@ -7,19 +7,21 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import { useRef, useEffect as useReactEffect } from "react";
+import { useRef } from "react";
 
 
 export const DockPanel = () => {
 
-    const [linkToRedirect, setLinkToRedirect] = useState("/favorites");
     const pathname = usePathname();
     const favorites = useSelector((state: RootState) => state.favorites.cities);
     const favoritesCount = favorites.length;
     const [mounted, setMounted] = useState(false);
     const dockIconRef = useRef<SVGSVGElement>(null);
 
+    const linkToRedirect = pathname === "/favorites" ? "/" : "/favorites";
+
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true);
     }, []);
 
@@ -35,9 +37,6 @@ export const DockPanel = () => {
         </div>
     </>;
 
-    useEffect(() => {
-        setLinkToRedirect(pathname === "/favorites" ? "/" : "/favorites");
-    }, [pathname]);
 
     return (
         <div className="dock-panel">

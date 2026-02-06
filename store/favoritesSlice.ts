@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { getJSON, setJSON } from '../lib/storage';
+import { setJSON } from '../lib/storage';
 
 export interface FavoriteCity {
   name: string;

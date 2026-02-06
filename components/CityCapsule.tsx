@@ -1,5 +1,5 @@
 import { convertTemperature } from "../lib/utils";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {  FavoriteCity } from "../store/favoritesSlice";
 import { useRouter } from "next/navigation";
 import { RootState } from "../store/store";
@@ -8,12 +8,15 @@ import { WeatherIcon } from "./WeatherIcon";
 import { useRef, useEffect, useState, useCallback } from "react";
 import gsap from "gsap";
 
-interface CityCapsuleWeather {
+export interface CityCapsuleWeather {
   name: string;
   country: string;
   temp: number;
   description: string;
   icon: string;
+  lat?: number;
+  lon?: number;
+  coord?: { lat: number; lon: number };
 }
 
 interface CityCapsuleSkeletonProps {
@@ -60,13 +63,17 @@ export const CityCapsuleSkeletons = ({ count = 6 }: CityCapsuleSkeletonProps) =>
 export function CityCapsule({ weather }: CityCapsuleProps) {
   const unit = useSelector((state: RootState) => state.temperature.unit);
   const favorites = useSelector((state: RootState) => state.favorites.cities);
-  const dispatch = useDispatch();
   const temp = convertTemperature(weather.temp, unit);
   const [displayTemp, setDisplayTemp] = useState(Math.round(temp));
   const tempRef = useRef<HTMLSpanElement>(null);
   const router = useRouter();
   const isFavorite = favorites.some(c => c.name === weather.name && c.country === weather.country);
-  const cityObj: FavoriteCity = { name: weather.name, country: weather.country, lat: (weather as any).lat ?? (weather as any).coord?.lat ?? 0, lon: (weather as any).lon ?? (weather as any).coord?.lon ?? 0 };
+  const cityObj: FavoriteCity = { 
+    name: weather.name, 
+    country: weather.country, 
+    lat: weather.lat ?? weather.coord?.lat ?? 0, 
+    lon: weather.lon ?? weather.coord?.lon ?? 0 
+  };
   const capsuleRef = useRef<HTMLDivElement>(null);
 
   // Entrance animation - run once

@@ -19,7 +19,7 @@ export async function getCachedData<T>(key: string): Promise<T | null> {
   }
 }
 
-export async function setCachedData(key: string, data: any, ttlSeconds: number = 600): Promise<void> {
+export async function setCachedData(key: string, data: unknown, ttlSeconds: number = 600): Promise<void> {
   try {
     await redis.set(key, JSON.stringify(data), 'EX', ttlSeconds);
   } catch (error) {

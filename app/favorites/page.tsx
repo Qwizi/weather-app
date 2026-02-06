@@ -5,10 +5,10 @@ import { RootState } from '../../store/store';
 import { fetchWeather } from '../../utils/fetchWeather';
 import { Bookmark, Undo2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
-import { CityCapsule, CityCapsuleSkeletons } from '../../components/CityCapsule';
+import { CityCapsule, CityCapsuleSkeletons, CityCapsuleWeather } from '../../components/CityCapsule';
 
 interface FavoritesState {
-  weatherData: any[];
+  weatherData: CityCapsuleWeather[];
   loading: boolean;
   mounted: boolean;
   error: string | null;
@@ -18,7 +18,7 @@ interface FavoritesState {
 type FavoritesAction = 
   | { type: 'MOUNT' }
   | { type: 'FETCH_START' }
-  | { type: 'FETCH_SUCCESS'; payload: any[] }
+  | { type: 'FETCH_SUCCESS'; payload: CityCapsuleWeather[] }
   | { type: 'FETCH_ERROR'; payload: string };
 
 const favoritesReducer = (state: FavoritesState, action: FavoritesAction): FavoritesState => {
@@ -46,7 +46,7 @@ const initialState: FavoritesState = {
 const FavoritesPage = () => {
   const favorites = useSelector((state: RootState) => state.favorites.cities);
   const [state, dispatch] = useReducer(favoritesReducer, initialState);
-  const { weatherData, loading, mounted, error } = state;
+  const { weatherData, loading, mounted } = state;
   const router = useRouter();
 
   useEffect(() => {
@@ -71,20 +71,24 @@ const FavoritesPage = () => {
         );
         
         if (dataArr) {
-          const formattedData = dataArr.map(data => data && {
-            name: data.name,
-            country: data.sys.country,
-            temp: data.main.temp,
-            feels_like: data.main.feels_like,
-            temp_min: data.main.temp_min,
-            temp_max: data.main.temp_max,
-            pressure: data.main.pressure,
-            humidity: data.main.humidity,
-            wind_speed: data.wind.speed,
-            wind_deg: data.wind.deg,
-            description: data.weather[0].description,
-            icon: data.weather[0].icon,
-          });
+          const formattedData: CityCapsuleWeather[] = dataArr
+            .filter((data): data is NonNullable<typeof data> => Boolean(data))
+            .map(data => ({
+              name: data.name,
+              country: data.sys.country,
+              temp: data.main.temp,
+              feels_like: data.main.feels_like,
+              temp_min: data.main.temp_min,
+              temp_max: data.main.temp_max,
+              pressure: data.main.pressure,
+              humidity: data.main.humidity,
+              wind_speed: data.wind.speed,
+              wind_deg: data.wind.deg,
+              description: data.weather[0].description,
+              icon: data.weather[0].icon,
+              lat: data.coord.lat,
+              lon: data.coord.lon
+            }));
           dispatch({ type: 'FETCH_SUCCESS', payload: formattedData });
         }
       } catch (err) {
@@ -99,7 +103,7 @@ const FavoritesPage = () => {
 
 
   const weatherCards = useMemo(() => {
-    return weatherData.map((data: any, i: number) => (
+    return weatherData.map((data: CityCapsuleWeather, i: number) => (
       <CityCapsule 
         key={`${data.name}-${data.country}-${i}`} 
         weather={data} 

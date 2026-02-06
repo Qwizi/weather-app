@@ -28,8 +28,8 @@ export async function GET(request: NextRequest) {
     
     await setCachedData(cacheKey, forecast, 1800); // 30 min
     return NextResponse.json(forecast);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API Error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to fetch forecast' }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message || 'Failed to fetch forecast' }, { status: 500 });
   }
 }

@@ -26,7 +26,7 @@ export default function SearchBox({ onGpsClick, isGpsLoading }: SearchBoxProps) 
       router.push(`/city/${citySlug}`);
       setSearchValue("");
       if (searchInputRef.current) searchInputRef.current.blur();
-    } catch (err: any) {
+    } catch {
       setSearchError("Nie znaleziono miasta lub błąd API");
     } finally {
       setSearchLoading(false);

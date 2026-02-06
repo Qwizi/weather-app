@@ -9,17 +9,17 @@ export async function fetchWeather(city: string): Promise<OpenWeatherResponse> {
     const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
     if (!res.ok) {
         let errorData;
-        try { errorData = await res.json(); } catch(e) {}
+        try { errorData = await res.json(); } catch {}
         throw new Error(errorData?.error || 'Błąd pobierania pogody');
     }
     return await res.json();
 }
 
-export async function fetchWeatherByCoords(lat: number, lon: number, apiKey: string): Promise<OpenWeatherResponse> {
+export async function fetchWeatherByCoords(lat: number, lon: number): Promise<OpenWeatherResponse> {
     const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
     if (!res.ok) {
         let errorData;
-        try { errorData = await res.json(); } catch(e) {}
+        try { errorData = await res.json(); } catch {}
         throw new Error(errorData?.error || 'Błąd pobierania pogody');
     }
     return await res.json();
@@ -33,7 +33,7 @@ export async function reverseGeocode(lat: number, lon: number): Promise<ReverseG
      return await res.json();
 }
 
-export async function fetchForecastByCoords(lat: number, lon: number, apiKey: string): Promise<OpenWeatherForecastResponse> {
+export async function fetchForecastByCoords(lat: number, lon: number): Promise<OpenWeatherForecastResponse> {
     const res = await fetch(`/api/forecast?lat=${lat}&lon=${lon}`);
     if (!res.ok) {
          throw new Error('Błąd pobierania prognozy');
@@ -41,8 +41,8 @@ export async function fetchForecastByCoords(lat: number, lon: number, apiKey: st
     return await res.json();
 }
 
-export async function fetchForecastForCity(city: FavoriteCity, apiKey: string): Promise<OpenWeatherForecastResponse> {
-     return fetchForecastByCoords(city.lat, city.lon, apiKey);
+export async function fetchForecastForCity(city: FavoriteCity): Promise<OpenWeatherForecastResponse> {
+     return fetchForecastByCoords(city.lat, city.lon);
 }
 
 // Deprecated: Only used if some component directly calls it.

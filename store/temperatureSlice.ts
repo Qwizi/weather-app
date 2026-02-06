@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { isTemperatureUnit, type TemperatureUnit } from '../lib/utils';
-import { getLocalStorageItem, setLocalStorageItem } from '../lib/storage';
+import { setLocalStorageItem } from '../lib/storage';
 
 interface TemperatureState {
   unit: TemperatureUnit;

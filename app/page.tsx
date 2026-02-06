@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { formatTemperature, formatLocalTime, formatLocalDate } from "@/lib/utils";
 import { CityCapsule, CityCapsuleSkeletons } from "../components/CityCapsule";
-import {  useEffect,  useReducer, useCallback, useMemo } from "react";
+import {  useEffect,  useReducer, useCallback, useMemo, useState } from "react";
 import { fetchWeather, fetchWeatherByCoords,reverseGeocode } from "@/utils/fetchWeather";
 import { useGeolocation,  } from "../hooks/useGeolocation";
 import WeatherHero, { WeatherHeroSkeleton } from "../components/WeatherHero";
@@ -53,7 +53,8 @@ function homeReducer(state: HomeState, action: HomeAction): HomeState {
 
 export default function Home() {
 
-  const { coords, error, loading, getLocation } = useGeolocation();
+  const { coords, loading, getLocation } = useGeolocation();
+  const [now, setNow] = useState<number | null>(null);
   const [state, dispatch] = useReducer(homeReducer, initialState);
   const { weather, cityWeathers, cityWeathersLoading, isFetchingLocationWeather, weatherLoading } = state;
   const unit = useSelector((state: RootState) => state.temperature.unit);
@@ -63,15 +64,18 @@ export default function Home() {
   }, [getLocation]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNow(Date.now() / 1000);
+  }, []);
+
+  useEffect(() => {
     const fetchWeatherForCoords = async () => {
       if (coords) {
         dispatch({ type: 'SET_LOCATION_WEATHER_LOADING', payload: true });
         try {
           const geo = await reverseGeocode(coords.lat, coords.lon);
           if (geo && geo[0]) {
-            const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-            if (!apiKey) throw new Error('Brak klucza API');
-            const weatherData = await fetchWeatherByCoords(coords.lat, coords.lon, apiKey);
+            const weatherData = await fetchWeatherByCoords(coords.lat, coords.lon);
             dispatch({ type: 'SET_LOCATION_WEATHER', payload: {
               name: weatherData.name,
               country: weatherData.sys.country,
@@ -161,8 +165,8 @@ export default function Home() {
             <WeatherHero
               city={weather.name}
               country={weather.country}
-              date={formatLocalDate(Date.now() / 1000, weather.timezone || 0)}
-              time={formatLocalTime(Date.now() / 1000, weather.timezone || 0)}
+              date={now ? formatLocalDate(now, weather.timezone || 0) : ''}
+              time={now ? formatLocalTime(now, weather.timezone || 0) : '--:--'}
               temperature={formatTemperature(weather.temp, unit)}
               weatherDesc={weather.description}
               feelsLike={formatTemperature(weather.feels_like, unit)}

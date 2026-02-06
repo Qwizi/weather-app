@@ -60,8 +60,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ error: 'Missing city or coordinates' }, { status: 400 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API Error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to fetch weather data' }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message || 'Failed to fetch weather data' }, { status: 500 });
   }
 }

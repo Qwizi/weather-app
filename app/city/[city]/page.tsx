@@ -1,9 +1,9 @@
 "use client";
-import React, { useMemo, useReducer, useCallback } from "react";
+import React, { useMemo, useReducer, useCallback, useState } from "react";
 import { formatTemperature, formatLocalTime, convertTemperature } from "@/lib/utils";
 import { Undo2 } from "lucide-react";
 import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { FavoriteCity } from "@/store/favoritesSlice";
 import { RootState } from "@/store/store";
 import { useRouter } from "next/navigation";
@@ -50,13 +50,14 @@ function reducer(state: State, action: Action): State {
 
 export default function CityPage({ params }: { params: Promise<{ city: string }> }) {
 
+  const [now, setNow] = useState<number | null>(null);
   const router = useRouter();
   const [state, localDispatch] = useReducer(reducer, initialState);
   const { weather, forecast, loading, error } = state;
   const { city } = React.use(params);
   const unit = useSelector((state: RootState) => state.temperature.unit);
   const favorites = useSelector((state: RootState) => state.favorites.cities);
-  const dispatch = useDispatch(); // Redux dispatch
+  // Redux dispatch removed as unused
   const isFavorite = weather && favorites.some(c => c.name === weather.name && c.country === weather.country);
   const cityObj: FavoriteCity | null = weather ? { name: weather.name, country: weather.country, lat: 0, lon: 0 } : null;
 
@@ -89,17 +90,21 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
         lon: data.coord.lon,
       };
 
-      const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
       let forecastData: OpenWeatherForecastResponse | null = null;
-      if (apiKey) {
-        forecastData = await fetchForecastByCoords(data.coord.lat, data.coord.lon, apiKey);
+      if (data.coord) {
+        forecastData = await fetchForecastByCoords(data.coord.lat, data.coord.lon);
       }
 
       localDispatch({ type: 'FETCH_SUCCESS', payload: { weather: weatherData, forecast: forecastData } });
-    } catch (e) {
+    } catch {
       localDispatch({ type: 'FETCH_ERROR', payload: "Nie znaleziono miasta lub błąd API" });
     }
   }, [city]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNow(Date.now() / 1000);
+  }, []);
 
   useEffect(() => {
     if (city) fetchData();
@@ -109,7 +114,8 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
   const processedForecastDays = useMemo(() => {
     if (!forecast) return [];
     
-    const groupedDays = Object.values(forecast.list.reduce((acc: any, item: any) => {
+    type ForecastItem = OpenWeatherForecastResponse['list'][0];
+    const groupedDays = Object.values(forecast.list.reduce((acc: Record<string, ForecastItem[]>, item: ForecastItem) => {
       const date = new Date(item.dt * 1000).toDateString();
       if (!acc[date]) {
         acc[date] = [];
@@ -118,10 +124,10 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
       return acc;
     }, {})).slice(0, 5);
 
-    return groupedDays.map((dayItems: any, i: number) => {
-      const minTemp = Math.min(...dayItems.map((d: any) => d.main.temp_min));
-      const maxTemp = Math.max(...dayItems.map((d: any) => d.main.temp_max));
-      const midDayItem = dayItems.find((d: any) => d.dt_txt.includes("12:00:00")) || dayItems[0];
+    return groupedDays.map((dayItems: ForecastItem[], i: number) => {
+      const minTemp = Math.min(...dayItems.map((d) => d.main.temp_min));
+      const maxTemp = Math.max(...dayItems.map((d) => d.main.temp_max));
+      const midDayItem = dayItems.find((d) => d.dt_txt.includes("12:00:00")) || dayItems[0];
       
       return {
         day: i === 0 ? 'Dziś' : new Date(dayItems[0].dt * 1000).toLocaleDateString('pl-PL', { weekday: 'short' }),
@@ -165,7 +171,7 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
                 city={weather.name}
                 country={weather.country}
                 date={"Dziś"}
-                time={formatLocalTime(Date.now() / 1000, weather.timezone)}
+                time={now ? formatLocalTime(now, weather.timezone) : '--:--'}
                 temperature={formatTemperature(weather.temp, unit)}
                 weatherDesc={weather.description}
                 feelsLike={formatTemperature(weather.feels_like, unit)}
@@ -178,7 +184,7 @@ export default function CityPage({ params }: { params: Promise<{ city: string }>
                 <div className="flex flex-col gap-6 w-full">
                   <div className="flex-1 ">
                     <HourlyForecast
-                      hours={forecast.list.slice(0, 8).map((item: any, idx: number) => {
+                      hours={forecast.list.slice(0, 8).map((item, idx) => {
                         return {
                           time: item.dt_txt.split(' ')[1].slice(0, 5),
                           icon: item.weather[0].icon,

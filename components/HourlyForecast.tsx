@@ -1,4 +1,4 @@
-import { CloudRain, CloudSnow, Cloud, Sun, Wind } from "lucide-react";
+import { Sun } from "lucide-react";
 import { WeatherIcon } from "./WeatherIcon";
 
 interface ForecastHour {
@@ -15,16 +15,6 @@ interface HourlyForecastProps {
   onViewFullChart?: () => void;
 }
 
-function getLucideIcon(icon: string) {
-  switch (icon) {
-    case "rainy": return <CloudRain className="w-8 h-8 text-white" />;
-    case "cloudy_snowing": return <CloudSnow className="w-8 h-8 text-slate-300" />;
-    case "cloud": return <Cloud className="w-8 h-8 text-slate-300" />;
-    case "partly_cloudy_day": return <Wind className="w-8 h-8 text-slate-300" />;
-    case "sunny": return <Sun className="w-8 h-8 text-accent-hot" />;
-    default: return <Cloud className="w-8 h-8 text-slate-300" />;
-  }
-}
 
 export default function HourlyForecast({ hours, onViewFullChart }: HourlyForecastProps) {
   return (
