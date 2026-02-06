@@ -1,8 +1,29 @@
-# Weather App
+# Weather App - Projekt DevOps
 
-Aplikacja pogodowa zbudowana w oparciu o Next.js 16, oferująca szczegółowe prognozy pogody, obsługę wielu lokalizacji.
+Aplikacja pogodowa zbudowana w oparciu o Next.js 16, w pełni skonteneryzowana i zintegrowana z procesami CI/CD.
 
-## Jak uruchomić projekt
+## Krótki opis
+
+Projekt jest aplikacją pogodową wykorzystującą Next.js, Redux Toolkit oraz Tailwind CSS. W ramach zajęć DevOps aplikacja została wzbogacona o:
+1.  **Konteneryzację:** Dockerfile (multi-stage build) zmniejszający obraz produkcyjny.
+2.  **Orkiestrację:** Docker Compose uruchamiający aplikację wraz z bazą Redis (cache).
+3.  **CI/CD:** GitHub Actions (testy, lintowanie, budowanie obrazu Docker i push do rejestru).
+
+## Jak uruchomić projekt (Docker - Zalecane)
+
+Jest to preferowana metoda uruchomienia, zgodna z wymaganiami projektu.
+
+1.  **Wymagania:** Zainstalowany Docker i Docker Compose.
+2.  **Uruchomienie:**
+    W katalogu głównym projektu uruchom komendę:
+    ```bash
+    docker-compose up --build
+    ```
+3.  **Dostęp:** Aplikacja dostępna pod adresem [http://localhost:3000](http://localhost:3000).
+
+---
+
+## Jak uruchomić projekt (Metoda tradycyjna / Deweloperska)
 
 ### Wymagania wstępne
 - Node.js (zalecana wersja 20.x lub nowsza)
