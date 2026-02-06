@@ -1,7 +1,7 @@
 name: Main Branch CI/CD
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 env:
   REGISTRY: ghcr.io
